@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Medicamentos</title>
+
+<script src="https://unpkg.com/quagga/dist/quagga.min.js"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#f4f6f9;
+font-size:22px;
+}
+
+.container{
+padding:15px;
+max-width:500px;
+margin:auto;
+}
+
+h2{
+text-align:center;
+font-size:30px;
+}
+
+input, select, button{
+width:100%;
+padding:18px;
+margin:10px 0;
+font-size:22px;
+border-radius:12px;
+border:1px solid #ccc;
+}
+
+button{
+background:#1976d2;
+color:white;
+font-weight:bold;
+border:none;
+}
+
+.galeria-unica{
+display:grid;
+grid-template-columns: repeat(2, 1fr);
+gap:15px;
+margin-top:20px;
+}
+
+.card{
+background:white;
+border-radius:15px;
+padding:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.card img{
+width:100%;
+aspect-ratio:1/1;
+object-fit:cover;
+border-radius:10px;
+}
+
+.nome-med{
+font-weight:bold;
+margin-top:8px;
+}
+
+.btn-excluir{
+background:#d32f2f;
+margin-top:8px;
+}
+
+.alerta{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#ff4444;
+color:white;
+text-align:center;
+padding:20px;
+font-size:26px;
+z-index:999;
+}
+
+.botao-concluir{
+background:#ff9800;
+margin-top:15px;
+}
+
+#scanner{
+width:100%;
+height:300px;
+display:none;
+}
+
+/* PAINEL MINIATURAS */
+
+.painel-miniaturas{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+margin-top:10px;
+}
+
+.miniatura{
+background:white;
+border-radius:12px;
+padding:6px;
+text-align:center;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
+transition:all .3s;
+}
+
+.miniatura img{
+width:100%;
+aspect-ratio:1/1;
+object-fit:cover;
+border-radius:8px;
+}
+
+.miniatura span{
+font-size:14px;
+display:block;
+margin-top:4px;
+}
+
+.ativo{
+border:4px solid red;
+animation:pulsar 1s infinite;
+transform:scale(1.2);
+z-index:10;
+}
+
+@keyframes pulsar{
+0%{transform:scale(1.2)}
+50%{transform:scale(1.3)}
+100%{transform:scale(1.2)}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>💊 Controle de Medicamentos</h2>
+
+<input type="text" id="paciente" placeholder="Nome do Paciente">
+<input type="text" id="medicamento" placeholder="Nome do Medicamento">
+
+<input type="number" id="quantidade" placeholder="Quantidade de comprimidos por dose">
+
+<input type="text" id="codigoBarras" placeholder="Código de barras" readonly>
+
+<button onclick="iniciarScanner()">📷 Escanear Código</button>
+
+<div id="scanner"></div>
+
+<select id="vezes">
+<option value="1">1x ao dia</option>
+<option value="2">2x ao dia</option>
+<option value="3">3x ao dia</option>
+<option value="4">4x ao dia</option>
+</select>
+
+<select id="periodo">
+<option value="7">Semanal</option>
+<option value="15">Quinzenal</option>
+<option value="30">Mensal</option>
+</select>
+
+<div id="horariosContainer"></div>
+
+<input type="file" accept="image/*" capture="environment" id="foto">
+
+<button onclick="salvarMedicamento()">Salvar Medicamento</button>
+
+<h3 style="text-align:center;margin-top:25px;">🧾 Painel de Medicamentos</h3>
+<div id="painelMiniaturas" class="painel-miniaturas"></div>
+
+<div class="galeria-unica" id="galeriaUnica"></div>
+
+</div>
+
+<audio id="alarmeSom" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
+<div id="mensagem"></div>
+
+<script>
+
+let medicamentos = JSON.parse(localStorage.getItem("medicamentos")) || [];
+
+let alarmeAtivo=false;
+let intervaloAlarme=null;
+
+document.getElementById("vezes").addEventListener("change",gerarHorarios);
+
+gerarHorarios();
+atualizarGaleria();
+atualizarPainelMiniaturas();
+
+function gerarHorarios(){
+
+let container=document.getElementById("horariosContainer");
+container.innerHTML="";
+
+let vezes=document.getElementById("vezes").value;
+
+for(let i=0;i<vezes;i++){
+container.innerHTML+=`<input type="time" class="horario">`;
+}
+
+}
+
+function iniciarScanner(){
+
+document.getElementById("scanner").style.display="block";
+
+Quagga.init({
+inputStream:{
+type:"LiveStream",
+target:document.querySelector('#scanner'),
+constraints:{facingMode:"environment"}
+},
+decoder:{readers:["ean_reader","code_128_reader"]}
+},function(err){
+
+if(err){console.log(err);return;}
+
+Quagga.start();
+
+});
+
+Quagga.onDetected(function(data){
+
+let codigo=data.codeResult.code;
+
+document.getElementById("codigoBarras").value=codigo;
+
+Quagga.stop();
+
+document.getElementById("scanner").style.display="none";
+
+});
+
+}
+
+function salvarMedicamento(){
+
+let paciente=document.getElementById("paciente").value;
+let medicamento=document.getElementById("medicamento").value;
+let quantidade=document.getElementById("quantidade").value;
+let codigoBarras=document.getElementById("codigoBarras").value;
+let periodo=parseInt(document.getElementById("periodo").value);
+
+let horarios=Array.from(document.getElementsByClassName("horario")).map(h=>h.value);
+
+let fotoInput=document.getElementById("foto");
+
+let dataInicio=Date.now();
+
+if(!paciente||!medicamento||!quantidade||horarios.includes("")){
+alert("Preencha todos os campos!");
+return;
+}
+
+let salvar = (foto)=>{
+
+medicamentos.push({
+paciente,
+medicamento,
+quantidade,
+codigoBarras,
+horarios,
+dosesTomadas:[],
+foto:foto,
+periodo:periodo,
+dataInicio:dataInicio,
+ultimoReset:dataInicio
+});
+
+localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
+
+atualizarGaleria();
+atualizarPainelMiniaturas();
+limparCampos();
+
+}
+
+if(fotoInput.files[0]){
+
+let reader=new FileReader();
+
+reader.onload=e=>salvar(e.target.result);
+
+reader.readAsDataURL(fotoInput.files[0]);
+
+}else{
+salvar(null);
+}
+
+}
+function atualizarPainelMiniaturas(){
+
+let painel=document.getElementById("painelMiniaturas");
+
+painel.innerHTML="";
+
+medicamentos.forEach((med,index)=>{
+
+painel.innerHTML+=`
+
+<div class="miniatura" id="mini-${index}">
+
+${med.foto?`<img src="${med.foto}">`:`<div style="height:60px"></div>`}
+
+<span>${med.medicamento}</span>
+
+</div>
+
+`;
+
+});
+
+}
+
+function atualizarGaleria(){
+
+let galeria=document.getElementById("galeriaUnica");
+galeria.innerHTML="";
+
+medicamentos.forEach((med,index)=>{
+
+if(med.inativo) return;
+
+let dosesRestantes=med.horarios.filter(h=>!med.dosesTomadas.includes(h));
+
+if(dosesRestantes.length===0) return;
+
+galeria.innerHTML+=`
+
+<div class="card">
+
+<div class="nome-med">${med.medicamento}</div>
+
+<div>👤 ${med.paciente}</div>
+
+<div>💊 ${med.quantidade} comprimido(s)</div>
+
+<div>📦 Código: ${med.codigoBarras||"—"}</div>
+
+<div>📅 Período: ${
+med.periodo==7?"Semanal":
+med.periodo==15?"Quinzenal":"Mensal"
+}</div>
+
+<button class="btn-excluir" onclick="excluirMedicamento(${index})">Excluir</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+/* CONTROLE DO PERÍODO */
+
+function verificarPeriodo(){
+
+let agora=Date.now();
+
+medicamentos.forEach(med=>{
+
+let diasPassados=(agora-med.dataInicio)/(1000*60*60*24);
+
+if(diasPassados>med.periodo){
+med.inativo=true;
+}
+
+let diasReset=(agora-med.ultimoReset)/(1000*60*60*24);
+
+if(diasReset>=1){
+
+med.dosesTomadas=[];
+med.ultimoReset=agora;
+
+}
+
+});
+
+localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
+
+}
+function falarMedicamentoCompleto(med){
+
+if(!('speechSynthesis' in window)) return;
+
+let agora=new Date();
+
+let horaAtual=agora.toTimeString().slice(0,5);
+
+let horariosOrdenados=med.horarios.slice().sort();
+
+let proximoHorario=null;
+
+for(let h of horariosOrdenados){
+
+if(h>horaAtual){
+proximoHorario=h;
+break;
+}
+
+}
+
+let mensagem=`Atenção! Hora de tomar ${med.quantidade} comprimido de ${med.medicamento}. `;
+
+if(proximoHorario){
+mensagem+=`A próxima dose será às ${proximoHorario} horas.`;
+}else{
+mensagem+=`Esta é a última dose do dia. Verifique se está correto`;
+}
+
+let fala=new SpeechSynthesisUtterance(mensagem);
+
+fala.lang="pt-BR";
+
+speechSynthesis.cancel();
+
+speechSynthesis.speak(fala);
+
+}
+
+function excluirMedicamento(index){
+
+medicamentos.splice(index,1);
+
+localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
+
+atualizarGaleria();
+atualizarPainelMiniaturas();
+
+}
+
+function limparCampos(){
+
+document.getElementById("paciente").value="";
+document.getElementById("medicamento").value="";
+document.getElementById("quantidade").value="";
+document.getElementById("codigoBarras").value="";
+document.getElementById("foto").value="";
+
+}
+
+function dispararAlerta(med){
+
+if(alarmeAtivo)return;
+
+alarmeAtivo=true;
+
+let index=medicamentos.indexOf(med);
+
+document.querySelectorAll(".miniatura").forEach(m=>{
+m.classList.remove("ativo");
+});
+
+let mini=document.getElementById("mini-"+index);
+
+if(mini){
+mini.classList.add("ativo");
+mini.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+document.getElementById("mensagem").innerHTML=`
+
+<div class="alerta">
+
+🔔 HORA DO MEDICAMENTO!<br>
+
+💊 ${med.medicamento}<br>
+
+${med.quantidade} comprimido(s)
+
+<button class="botao-concluir" onclick="concluirMedicacao()">MEDICAÇÃO CONCLUÍDA</button>
+
+</div>
+
+`;
+
+falarMedicamentoCompleto(med);
+
+intervaloAlarme=setInterval(()=>{
+
+document.getElementById("alarmeSom").play();
+
+if(navigator.vibrate){
+navigator.vibrate([700,300,700]);
+}
+
+falarMedicamentoCompleto(med);
+
+},12000);
+
+}
+
+function concluirMedicacao(){
+
+clearInterval(intervaloAlarme);
+
+alarmeAtivo=false;
+
+speechSynthesis.cancel();
+
+document.getElementById("mensagem").innerHTML="";
+
+document.querySelectorAll(".miniatura").forEach(m=>{
+m.classList.remove("ativo");
+});
+
+}
+
+function verificarHorario(){
+
+verificarPeriodo();
+
+let agora=new Date();
+
+let horaAtual=agora.toTimeString().slice(0,5);
+
+medicamentos.forEach(med=>{
+
+if(med.inativo) return;
+
+med.horarios.forEach(h=>{
+
+if(h===horaAtual){
+dispararAlerta(med);
+}
+
+});
+
+});
+
+}
+  
+setInterval(verificarHorario,30000);
+  
+</script>
+
+</body>
+</html>
