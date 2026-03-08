@@ -317,20 +317,52 @@ function iniciarScanner(){
 document.getElementById("scanner").style.display="block";
 
 Quagga.init({
+
 inputStream:{
+name:"Live",
 type:"LiveStream",
 target:document.querySelector('#scanner'),
-constraints:{facingMode:"environment"}
+
+constraints:{
+width:{ideal:1280},
+height:{ideal:720},
+facingMode:"environment",
+aspectRatio:{min:1,max:2}
+}
 },
-decoder:{readers:["ean_reader","code_128_reader"]}
+
+locator:{
+patchSize:"medium",
+halfSample:false
+},
+
+numOfWorkers:navigator.hardwareConcurrency || 4,
+
+decoder:{
+readers:[
+"ean_reader",
+"ean_8_reader",
+"code_128_reader",
+"code_39_reader",
+"upc_reader"
+]
+},
+
+locate:true,
+
+frequency:10
+
 },function(err){
 
-if(err){console.log(err);return;}
+if(err){
+console.log(err);
+return;
+}
 
 Quagga.start();
 
 });
-
+  
 Quagga.onDetected(function(data){
 
 let codigo=data.codeResult.code;
@@ -342,9 +374,7 @@ Quagga.stop();
 document.getElementById("scanner").style.display="none";
 
 });
-
 }
-
 function salvarMedicamento(){
 
 let paciente=document.getElementById("paciente").value;
