@@ -204,23 +204,27 @@ z-index:10;
     height:45px;
 }
 
-/* melhora visualização em telas pequenas */
+/* Ajuste específico para o campo de horário */
+input[type="time"]{
+    font-size:16px;
+    padding:6px 8px;
+    height:38px;
+}
+
+/* Ajuste extra para dispositivos móveis */
 @media (max-width:600px){
 
-.horario{
-    font-size:16px;
-    padding:4px;
-    height:40px;
+input[type="time"]{
+    font-size:15px;
+    padding:4px 6px;
+    height:34px;
 }
 
 }
-
-/* TELAS MUITO PEQUENAS */
-
-@media (max-width:400px){
-
-.container{
-padding:10px;
+  #horariosContainer{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
 }
 
 button{
