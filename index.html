@@ -38,22 +38,23 @@ margin:auto;
 
 /* TITULOS */
 
-h2 .logo{
-  header .logo {
-  font-size: 30px;
-  margin: 0;
-  padding: 0;
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  font-family: "Poppins", sans-serif;
-}
-.logo img {
-  max-height: 40px;
-}
-text-align:center;
+/* TITULO COM LOGO */
+
+h2{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
 font-size:clamp(22px,4vw,32px);
 margin-bottom:15px;
+text-align:center;
+}
+
+/* LOGO */
+
+#logo{
+height:40px;
+width:auto;
 }
 
 /* CAMPOS */
@@ -279,8 +280,10 @@ max-width:1000px;
 
 <div class="container">
 
-<h2><img src="icon-48x48.png" id="logo" alt="Descrição da imagem para acessibilidade">Controle de Medicamentos</h2>
-
+<h2>
+<img src="icon-48x48.png" id="logo" alt="Descrição da imagem para acessibilidade">
+Controle de Medicamentos
+</h2>
 <input type="text" id="paciente" placeholder="Nome do Paciente">
 <input type="text" id="medicamento" placeholder="Nome do Medicamento">
 
