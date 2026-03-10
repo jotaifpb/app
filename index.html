@@ -101,25 +101,41 @@ font-size:20px;
 
 .galeria-unica{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
+gap:10px;
 margin-top:20px;
+width:100%;
 }
 
 /* CARD */
 
 .card{
 background:white;
-border-radius:16px;
-padding:16px;
-box-shadow:0 8px 20px rgba(0,0,0,0.08);
+border-radius:14px;
+padding:10px;
+box-shadow:0 4px 12px rgba(0,0,0,0.15);
 text-align:center;
-border-top:5px solid #2E3F8F;
-transition:0.3s;
+display:flex;
+flex-direction:column;
+justify-content:center;
+transition:all .3s;
+border:2px solid transparent;
 }
 
 .card:hover{
-transform:translateY(-4px);
+transform:scale(1.05);
+}
+
+.nome-med{
+font-weight:bold;
+font-size:clamp(13px,2vw,16px);
+margin-bottom:5px;
+}
+
+.zoom-excluir{
+transform:scale(1.35);
+z-index:50;
+border:3px solid #ff4444;
+box-shadow:0 0 20px rgba(255,0,0,0.5);
 }
 
 /* IMAGEM RESPONSIVA */
@@ -532,11 +548,20 @@ ${med.foto?`<img src="${med.foto}">`:`<div style="height:100%"></div>`}
 function atualizarGaleria(){
 
 let galeria=document.getElementById("galeriaUnica");
+
 galeria.innerHTML="";
 
-medicamentos.forEach((med,index)=>{
+let ativos = medicamentos.filter(m=>!m.inativo);
 
-if(med.inativo) return;
+let total=ativos.length;
+
+let colunas=Math.ceil(Math.sqrt(total));
+
+if(colunas<4) colunas=4;
+
+galeria.style.gridTemplateColumns=`repeat(${colunas},1fr)`;
+
+ativos.forEach((med,index)=>{
 
 let dosesRestantes=med.horarios.filter(h=>!med.dosesTomadas.includes(h));
 
@@ -544,22 +569,17 @@ if(dosesRestantes.length===0) return;
 
 galeria.innerHTML+=`
 
-<div class="card">
+<div class="card" id="card-${index}">
 
 <div class="nome-med">${med.medicamento}</div>
 
 <div>👤 ${med.paciente}</div>
 
-<div>💊 ${med.quantidade} comprimido(s)</div>
+<div>💊 ${med.quantidade}</div>
 
-<div>📦 Código: ${med.codigoBarras||"—"}</div>
+<div>📦 ${med.codigoBarras||"—"}</div>
 
-<div>📅 Período: ${
-med.periodo==7?"Semanal":
-med.periodo==15?"Quinzenal":"Mensal"
-}</div>
-
-<button class="btn-excluir" onclick="excluirMedicamento(${index})">Excluir</button>
+<button class="btn-excluir" onclick="zoomExcluir(${index})">Excluir</button>
 
 </div>
 
@@ -569,6 +589,20 @@ med.periodo==15?"Quinzenal":"Mensal"
 
 }
 
+  function zoomExcluir(index){
+
+let card=document.getElementById("card-"+index);
+
+card.classList.add("zoom-excluir");
+
+setTimeout(()=>{
+
+excluirMedicamento(index);
+
+},400);
+
+}
+  
 /* CONTROLE DO PERÍODO */
 
 function verificarPeriodo(){
