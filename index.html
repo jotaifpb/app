@@ -497,13 +497,27 @@ let painel=document.getElementById("painelMiniaturas");
 
 painel.innerHTML="";
 
+let total=medicamentos.length;
+
+/* calcula grade quadrada automática */
+
+let colunas=Math.ceil(Math.sqrt(total));
+
+if(colunas<4) colunas=4;
+
+/* aplica grid */
+
+painel.style.gridTemplateColumns=`repeat(${colunas},1fr)`;
+
+/* cria miniaturas */
+
 medicamentos.forEach((med,index)=>{
 
 painel.innerHTML+=`
 
 <div class="miniatura" id="mini-${index}">
 
-${med.foto?`<img src="${med.foto}">`:`<div style="height:60px"></div>`}
+${med.foto?`<img src="${med.foto}">`:`<div style="height:100%"></div>`}
 
 <span>${med.medicamento}</span>
 
