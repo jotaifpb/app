@@ -714,15 +714,15 @@ alarmeAtivo=true;
 
 let index=medicamentos.indexOf(med);
 
-document.querySelectorAll(".miniatura").forEach(m=>{
+document.querySelectorAll(".miniatura, .card").forEach(m=>{
 m.classList.remove("ativo");
 });
 
 let mini=document.getElementById("mini-"+index);
+let card=document.getElementById("card-"+index);
 
-if(mini){
-mini.classList.add("ativo");
-mini.scrollIntoView({behavior:"smooth",block:"center"});
+if(mini) mini.classList.add("ativo");
+if(card) card.classList.add("ativo");
 }
 
 document.getElementById("mensagem").innerHTML=`
