@@ -247,6 +247,11 @@ grid-template-columns:1fr;
 }
 
 }
+ mini.scrollIntoView({
+behavior:"smooth",
+block:"center",
+inline:"center"
+});
 
 </style>
 </head>
@@ -669,7 +674,39 @@ dispararAlerta(med)
 })
 
 }
+function atualizarPainelMiniaturas(){
 
+let painel=document.getElementById("painelMiniaturas");
+
+painel.innerHTML="";
+
+let total=medicamentos.length;
+
+/* calcula tamanho da grade */
+
+let colunas=Math.ceil(Math.sqrt(total));
+
+if(colunas<4) colunas=4;
+
+painel.style.gridTemplateColumns=`repeat(${colunas},1fr)`;
+
+medicamentos.forEach((med,index)=>{
+
+painel.innerHTML+=`
+
+<div class="miniatura" id="mini-${index}">
+
+${med.foto?`<img src="${med.foto}">`:`<div style="height:60px"></div>`}
+
+<span>${med.medicamento}</span>
+
+</div>
+
+`;
+
+});
+
+}
 setInterval(verificarHorario,30000)
 
 </script>
