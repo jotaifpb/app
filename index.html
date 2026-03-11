@@ -489,72 +489,105 @@ document.getElementById("scanner").style.display="none"
 
 function salvarMedicamento(){
 
-let paciente=document.getElementById("paciente").value
-let medicamento=document.getElementById("medicamento").value
-let quantidade=document.getElementById("quantidade").value
-let codigoBarras=document.getElementById("codigoBarras").value
-let horarios=Array.from(document.getElementsByClassName("horario")).map(h=>h.value)
+let paciente = document.getElementById("paciente").value.trim();
 
-let fotoInput=document.getElementById("foto")
+let medicamentoCampo = document.getElementById("medicamento");
+let novoMedicamentoCampo = document.getElementById("novoMedicamento");
 
-if(!paciente || !medicamento || !quantidade || horarios.includes("")){
+let medicamento = "";
 
-alert("Preencha todos os campos!")
+if(medicamentoCampo){
+medicamento = medicamentoCampo.value;
+}
 
-return
+if(!medicamento && novoMedicamentoCampo){
+medicamento = novoMedicamentoCampo.value;
+}
+
+medicamento = medicamento.trim();
+
+let quantidade = document.getElementById("quantidade").value;
+
+let codigoBarras = document.getElementById("codigoBarras").value;
+
+let periodo = parseInt(document.getElementById("periodo").value);
+
+let horarios = Array.from(document.getElementsByClassName("horario"))
+.map(h => h.value)
+.filter(h => h !== "");
+
+let fotoInput = document.getElementById("foto");
+
+let dataInicio = Date.now();
+
+/* VALIDAÇÃO */
+
+if(!paciente || !medicamento || !quantidade || horarios.length === 0){
+
+alert("Preencha todos os campos obrigatórios!");
+
+return;
 
 }
 
-let reader=new FileReader()
+/* FUNÇÃO INTERNA PARA SALVAR */
 
-reader.onload=function(e){
+function salvar(foto){
 
-medicamentos.push({
-paciente,
-medicamento,
-quantidade,
-codigoBarras,
-horarios,
-foto:e.target.result
-})
+let novoMedicamento = {
 
-localStorage.setItem("medicamentos",JSON.stringify(medicamentos))
+paciente: paciente,
+medicamento: medicamento,
+quantidade: quantidade,
+codigoBarras: codigoBarras,
+horarios: horarios,
+dosesTomadas: [],
+foto: foto,
+periodo: periodo,
+dataInicio: dataInicio,
+ultimoReset: dataInicio,
+inativo: false
 
-atualizarGaleria()
+};
 
-limparCampos()
+medicamentos.push(novoMedicamento);
 
-mostrarToast("Medicamento salvo!")
+/* SALVA NO APARELHO */
+
+localStorage.setItem("medicamentos", JSON.stringify(medicamentos));
+
+/* ATUALIZA INTERFACE */
+
+atualizarGaleria();
+atualizarPainelMiniaturas();
+
+limparCampos();
+
+alert("Medicamento salvo com sucesso!");
 
 }
 
-if(fotoInput.files[0]){
+/* TRATAR FOTO */
 
-reader.readAsDataURL(fotoInput.files[0])
+if(fotoInput && fotoInput.files && fotoInput.files[0]){
+
+let reader = new FileReader();
+
+reader.onload = function(e){
+
+salvar(e.target.result);
+
+};
+
+reader.readAsDataURL(fotoInput.files[0]);
 
 }else{
 
-medicamentos.push({
-paciente,
-medicamento,
-quantidade,
-codigoBarras,
-horarios,
-foto:null
-})
-
-localStorage.setItem("medicamentos",JSON.stringify(medicamentos))
-
-atualizarGaleria()
-
-limparCampos()
-
-mostrarToast("Medicamento salvo!")
+salvar(null);
 
 }
 
 }
-
 function atualizarGaleria(){
 
 let galeria=document.getElementById("galeriaUnica")
