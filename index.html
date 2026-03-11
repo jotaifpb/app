@@ -268,48 +268,53 @@ grid-template-columns:1fr;
 
 <script>
 
-let medicamentos = JSON.parse(localStorage.getItem("medicamentos")) || [];
- let listaMedicamentos = JSON.parse(localStorage.getItem("listaMedicamentos")) || [];
+let listaMedicamentos = JSON.parse(localStorage.getItem("listaMedicamentos")) || [];
 
 function atualizarListaMedicamentos(){
 
-let datalist = document.getElementById("listaMedicamentos");
+let select=document.getElementById("medicamento");
 
-datalist.innerHTML="";
+select.innerHTML='<option value="">Selecione ou adicione um medicamento</option>';
 
 listaMedicamentos.forEach(nome=>{
 
 let option=document.createElement("option");
 option.value=nome;
-datalist.appendChild(option);
+option.textContent=nome;
+
+select.appendChild(option);
 
 });
 
 }
 
-function salvarNomeMedicamento(){
- 
+function adicionarMedicamentoLista(){
 
-let nome=document.getElementById("medicamento").value.trim();
+let novo=document.getElementById("novoMedicamento").value.trim();
 
-if(!nome) return;
+if(!novo) return;
 
-if(!listaMedicamentos.includes(nome)){
+if(!listaMedicamentos.includes(novo)){
 
-listaMedicamentos.push(nome);
+listaMedicamentos.push(novo);
 
 localStorage.setItem("listaMedicamentos",JSON.stringify(listaMedicamentos));
- salvarNomeMedicamento();
 
 atualizarListaMedicamentos();
 
 }
 
+document.getElementById("novoMedicamento").value="";
+
 }
 
-function removerNomeMedicamento(){
+function removerMedicamentoLista(){
 
-let nome=document.getElementById("medicamento").value.trim();
+let select=document.getElementById("medicamento");
+
+let nome=select.value;
+
+if(!nome) return;
 
 listaMedicamentos=listaMedicamentos.filter(m=>m!==nome);
 
@@ -320,6 +325,8 @@ atualizarListaMedicamentos();
 }
 
 atualizarListaMedicamentos();
+
+let medicamento=document.getElementById("medicamento").value || document.getElementById("novoMedicamento").value;
 
 let alarmeAtivo=false
 let intervaloAlarme=null
