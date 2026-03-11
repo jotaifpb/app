@@ -144,22 +144,27 @@ padding:25px;
 font-size:26px;
 animation:pulsar 1s infinite;
 }
-  /* Ajuste do campo de horário para celulares */
-.horario{
-    font-size:18px;
-    padding:10px;
-    height:45px;
+ /* Ajuste específico para o campo de horário */
+input[type="time"]{
+    font-size:16px;
+    padding:6px 8px;
+    height:38px;
 }
 
-/* melhora visualização em telas pequenas */
+/* Ajuste extra para dispositivos móveis */
 @media (max-width:600px){
 
-.horario{
-    font-size:16px;
-    padding:4px;
-    height:40px;
+input[type="time"]{
+    font-size:15px;
+    padding:4px 6px;
+    height:34px;
 }
 
+}
+  #horariosContainer{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
 }
 
 @keyframes pulsar{
