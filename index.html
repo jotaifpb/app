@@ -150,14 +150,22 @@ animation:pulsar 1s infinite;
     grid-template-columns:1fr 1fr;
     gap:8px;
 }
- /* Ajuste específico para o campo de horário */
+/* Campo de horário mais compacto */
 input[type="time"]{
     font-size:16px;
     padding:6px 8px;
     height:38px;
+    max-width:160px;
 }
 
-/* Ajuste extra para dispositivos móveis */
+/* Layout dos horários */
+#horariosContainer{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+}
+
+/* Ajuste para telas pequenas */
 @media (max-width:600px){
 
 input[type="time"]{
