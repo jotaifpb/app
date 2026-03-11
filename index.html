@@ -266,6 +266,57 @@ grid-template-columns:1fr;
 <script>
 
 let medicamentos = JSON.parse(localStorage.getItem("medicamentos")) || [];
+ let listaMedicamentos = JSON.parse(localStorage.getItem("listaMedicamentos")) || [];
+
+function atualizarListaMedicamentos(){
+
+let datalist = document.getElementById("listaMedicamentos");
+
+datalist.innerHTML="";
+
+listaMedicamentos.forEach(nome=>{
+
+let option=document.createElement("option");
+option.value=nome;
+datalist.appendChild(option);
+
+});
+
+}
+
+function salvarNomeMedicamento(){
+ 
+
+let nome=document.getElementById("medicamento").value.trim();
+
+if(!nome) return;
+
+if(!listaMedicamentos.includes(nome)){
+
+listaMedicamentos.push(nome);
+
+localStorage.setItem("listaMedicamentos",JSON.stringify(listaMedicamentos));
+ salvarNomeMedicamento();
+
+atualizarListaMedicamentos();
+
+}
+
+}
+
+function removerNomeMedicamento(){
+
+let nome=document.getElementById("medicamento").value.trim();
+
+listaMedicamentos=listaMedicamentos.filter(m=>m!==nome);
+
+localStorage.setItem("listaMedicamentos",JSON.stringify(listaMedicamentos));
+
+atualizarListaMedicamentos();
+
+}
+
+atualizarListaMedicamentos();
 
 let alarmeAtivo=false
 let intervaloAlarme=null
