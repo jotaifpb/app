@@ -220,12 +220,15 @@ grid-template-columns:1fr;
 <label>👤 Paciente</label>
 <input type="text" id="paciente" aria-label="Nome do paciente">
 
-<input list="listaMedicamentos" id="medicamento" placeholder="Nome do Medicamento">
+<select id="medicamento">
+<option value="">Selecione ou adicione um medicamento</option>
+</select>
 
-<datalist id="listaMedicamentos"></datalist>
+<input type="text" id="novoMedicamento" placeholder="Adicionar novo medicamento">
 
-<button onclick="salvarNomeMedicamento()">➕ Adicionar à lista</button>
-<button onclick="removerNomeMedicamento()">🗑️ Remover da lista</button>
+<button onclick="adicionarMedicamentoLista()">➕ Adicionar medicamento</button>
+
+<button onclick="removerMedicamentoLista()">🗑️ Remover medicamento selecionado</button>
 
 <label>🔢 Quantidade por dose</label>
 <input type="number" id="quantidade">
