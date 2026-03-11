@@ -3,282 +3,489 @@
 <head>
 
 <meta charset="UTF-8">
-
-<!-- SEGURANÇA 1
-Content Security Policy bloqueia execução de scripts externos maliciosos -->
-<meta http-equiv="Content-Security-Policy" 
-content="default-src 'self'; script-src 'self' https://unpkg.com; img-src 'self' data:; media-src https://actions.google.com">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Controle de Medicamentos Seguro</title>
+<title>Controle de Medicamentos</title>
 
 <script src="https://unpkg.com/quagga/dist/quagga.min.js"></script>
 
 <style>
 
+:root{
+--cor1:#1976d2;
+--cor2:#0d47a1;
+--verde:#2e7d32;
+--vermelho:#d32f2f;
+--laranja:#ff9800;
+}
+
 body{
-font-family:Arial;
-background:#f4f6f9;
 margin:0;
+font-family:'Segoe UI',Arial;
+background:linear-gradient(135deg,#1976d2,#0d47a1);
+color:#333;
+}
+
+header{
+background:white;
+padding:15px;
+text-align:center;
+font-size:26px;
+font-weight:bold;
+box-shadow:0 3px 10px rgba(0,0,0,0.2);
 }
 
 .container{
-max-width:500px;
-margin:auto;
 padding:15px;
+max-width:520px;
+margin:auto;
+}
+
+form{
+background:white;
+padding:15px;
+border-radius:16px;
+box-shadow:0 6px 15px rgba(0,0,0,0.15);
+}
+
+label{
+font-weight:bold;
 }
 
 input,select,button{
 width:100%;
-padding:15px;
+padding:16px;
 margin:10px 0;
 font-size:20px;
-border-radius:10px;
+border-radius:12px;
+border:1px solid #ccc;
+}
+
+input:focus{
+outline:3px solid #1976d2;
 }
 
 button{
-background:#1976d2;
+background:var(--cor1);
 color:white;
+font-weight:bold;
 border:none;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.03);
+}
+
+.btn-excluir{
+background:var(--vermelho);
+}
+
+.botao-concluir{
+background:var(--laranja);
+font-size:22px;
+}
+
+.btn-scan{
+background:#6a1b9a;
+}
+
+#scanner{
+width:100%;
+height:280px;
+display:none;
+border-radius:12px;
+overflow:hidden;
+}
+
+.galeria-unica{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+margin-top:20px;
+}
+
+.card{
+background:white;
+border-radius:16px;
+padding:10px;
+box-shadow:0 4px 12px rgba(0,0,0,0.2);
+text-align:center;
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-4px);
+}
+
+.card img{
+width:100%;
+aspect-ratio:1/1;
+object-fit:cover;
+border-radius:10px;
+}
+
+.nome-med{
+font-weight:bold;
+font-size:20px;
+margin-top:5px;
+}
+
+.alerta{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#c62828;
+color:white;
+text-align:center;
+padding:25px;
+font-size:26px;
+animation:pulsar 1s infinite;
+}
+
+@keyframes pulsar{
+0%{background:#c62828;}
+50%{background:#ff4444;}
+100%{background:#c62828;}
+}
+
+.toast{
+position:fixed;
+top:20px;
+left:50%;
+transform:translateX(-50%);
+background:#2e7d32;
+color:white;
+padding:15px 25px;
+border-radius:10px;
+font-size:20px;
+}
+
+@media (max-width:500px){
+
+.galeria-unica{
+grid-template-columns:1fr;
+}
+
 }
 
 </style>
-
 </head>
 
 <body>
 
+<header>
+💊 Controle Inteligente de Medicamentos
+</header>
+
 <div class="container">
 
-<h2>🔒 Controle Seguro de Medicamentos</h2>
+<form>
 
-<!-- SEGURANÇA 2
-PIN de acesso para proteger acesso ao sistema -->
+<label>👤 Paciente</label>
+<input type="text" id="paciente" aria-label="Nome do paciente">
 
-<input type="password" id="pin" placeholder="Digite o PIN de acesso">
-<button onclick="verificarPIN()">Entrar</button>
+<label>💊 Medicamento</label>
+<input type="text" id="medicamento" aria-label="Nome do medicamento">
 
-<div id="sistema" style="display:none;">
+<label>🔢 Quantidade por dose</label>
+<input type="number" id="quantidade">
 
-<input type="text" id="paciente" placeholder="Paciente">
-<input type="text" id="medicamento" placeholder="Medicamento">
+<label>📦 Código de barras</label>
+<input type="text" id="codigoBarras" readonly>
 
-<input type="number" id="quantidade" placeholder="Quantidade">
+<button type="button" class="btn-scan" onclick="iniciarScanner()">📷 Escanear Código</button>
 
+<div id="scanner"></div>
+
+<label>⏰ Quantas vezes ao dia?</label>
 <select id="vezes">
 <option value="1">1x ao dia</option>
 <option value="2">2x ao dia</option>
 <option value="3">3x ao dia</option>
+<option value="4">4x ao dia</option>
 </select>
 
 <div id="horariosContainer"></div>
 
-<button onclick="salvarMedicamento()">Salvar</button>
+<label>📷 Foto do medicamento</label>
+<input type="file" accept="image/*" capture="environment" id="foto">
 
-<div id="lista"></div>
+<button type="button" onclick="salvarMedicamento()">💾 Salvar Medicamento</button>
+
+</form>
+
+<div class="galeria-unica" id="galeriaUnica"></div>
 
 </div>
 
-</div>
+<audio id="alarmeSom" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
+<div id="mensagem"></div>
+<div id="toast"></div>
 
 <script>
 
-/* ===============================
-SEGURANÇA 3
-PIN padrão criptografado
-=============================== */
+let medicamentos = JSON.parse(localStorage.getItem("medicamentos")) || [];
 
-const PIN_HASH = btoa("1234") // base64 (exemplo simples)
-
-/* ===============================
-SEGURANÇA 4
-Verificação de autenticação
-=============================== */
-
-function verificarPIN(){
-
-let pin=document.getElementById("pin").value
-
-if(btoa(pin)===PIN_HASH){
-
-document.getElementById("sistema").style.display="block"
-
-}else{
-
-alert("PIN incorreto")
-
-}
-
-}
-
-/* ===============================
-SEGURANÇA 5
-Função para sanitizar dados
-Evita XSS
-=============================== */
-
-function sanitizar(texto){
-
-return texto
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"")
-
-}
-
-/* ===============================
-SEGURANÇA 6
-Criptografia simples antes de salvar
-=============================== */
-
-function criptografar(dados){
-
-return btoa(JSON.stringify(dados))
-
-}
-
-function descriptografar(dados){
-
-if(!dados) return []
-
-return JSON.parse(atob(dados))
-
-}
-
-/* ===============================
-SEGURANÇA 7
-Carrega dados criptografados
-=============================== */
-
-let medicamentos = descriptografar(localStorage.getItem("medicamentos"))
-
-/* ===============================
-SEGURANÇA 8
-Limite de armazenamento
-Evita abuso
-=============================== */
-
-const LIMITE_MEDICAMENTOS = 50
-
-/* ===============================
-GERAR HORÁRIOS
-=============================== */
+let alarmeAtivo=false
+let intervaloAlarme=null
 
 document.getElementById("vezes").addEventListener("change",gerarHorarios)
 
 gerarHorarios()
+atualizarGaleria()
 
 function gerarHorarios(){
 
 let container=document.getElementById("horariosContainer")
-
 container.innerHTML=""
 
 let vezes=document.getElementById("vezes").value
 
 for(let i=0;i<vezes;i++){
 
-container.innerHTML+=`<input type="time" class="horario">`
+container.innerHTML+=`<input type="time" class="horario" aria-label="Horário da dose">`
 
 }
 
 }
 
-/* ===============================
-SEGURANÇA 9
-Proteção contra múltiplos cliques
-=============================== */
+function mostrarToast(msg){
 
-let salvando=false
+let toast=document.getElementById("toast")
 
-function salvarMedicamento(){
+toast.innerHTML=`<div class="toast">${msg}</div>`
 
-if(salvando) return
-
-salvando=true
-
-setTimeout(()=>salvando=false,2000)
-
-/* ===============================
-SEGURANÇA 10
-Validação de dados
-=============================== */
-
-let paciente=sanitizar(document.getElementById("paciente").value)
-
-let medicamento=sanitizar(document.getElementById("medicamento").value)
-
-let quantidade=parseInt(document.getElementById("quantidade").value)
-
-let horarios=Array.from(document.getElementsByClassName("horario")).map(h=>h.value)
-
-if(!paciente || !medicamento || !quantidade){
-
-alert("Preencha todos os campos")
-
-return
+setTimeout(()=>{toast.innerHTML=""},3000)
 
 }
 
-/* ===============================
-SEGURANÇA 11
-Limite de registros
-=============================== */
+function iniciarScanner(){
 
-if(medicamentos.length>=LIMITE_MEDICAMENTOS){
+document.getElementById("scanner").style.display="block"
 
-alert("Limite de medicamentos atingido")
+Quagga.init({
+inputStream:{
+type:"LiveStream",
+target:document.querySelector('#scanner'),
+constraints:{facingMode:"environment"}
+},
+decoder:{readers:["ean_reader","code_128_reader"]}
+},
+function(err){
 
-return
+if(err){console.log(err);return}
 
-}
+Quagga.start()
 
-let novo={
+})
 
-paciente,
-medicamento,
-quantidade,
-horarios
+Quagga.onDetected(function(data){
 
-}
+let codigo=data.codeResult.code
 
-medicamentos.push(novo)
+document.getElementById("codigoBarras").value=codigo
 
-/* ===============================
-SEGURANÇA 12
-Salvar dados criptografados
-=============================== */
+Quagga.stop()
 
-localStorage.setItem("medicamentos",criptografar(medicamentos))
-
-mostrar()
-
-}
-
-/* ===============================
-EXIBIÇÃO SEGURA
-=============================== */
-
-function mostrar(){
-
-let lista=document.getElementById("lista")
-
-lista.innerHTML=""
-
-medicamentos.forEach(med=>{
-
-let div=document.createElement("div")
-
-div.innerText=`${med.paciente} - ${med.medicamento} - ${med.quantidade}`
-
-lista.appendChild(div)
+document.getElementById("scanner").style.display="none"
 
 })
 
 }
 
-mostrar()
+function salvarMedicamento(){
+
+let paciente=document.getElementById("paciente").value
+let medicamento=document.getElementById("medicamento").value
+let quantidade=document.getElementById("quantidade").value
+let codigoBarras=document.getElementById("codigoBarras").value
+let horarios=Array.from(document.getElementsByClassName("horario")).map(h=>h.value)
+
+let fotoInput=document.getElementById("foto")
+
+if(!paciente || !medicamento || !quantidade || horarios.includes("")){
+
+alert("Preencha todos os campos!")
+
+return
+
+}
+
+let reader=new FileReader()
+
+reader.onload=function(e){
+
+medicamentos.push({
+paciente,
+medicamento,
+quantidade,
+codigoBarras,
+horarios,
+foto:e.target.result
+})
+
+localStorage.setItem("medicamentos",JSON.stringify(medicamentos))
+
+atualizarGaleria()
+
+limparCampos()
+
+mostrarToast("Medicamento salvo!")
+
+}
+
+if(fotoInput.files[0]){
+
+reader.readAsDataURL(fotoInput.files[0])
+
+}else{
+
+medicamentos.push({
+paciente,
+medicamento,
+quantidade,
+codigoBarras,
+horarios,
+foto:null
+})
+
+localStorage.setItem("medicamentos",JSON.stringify(medicamentos))
+
+atualizarGaleria()
+
+limparCampos()
+
+mostrarToast("Medicamento salvo!")
+
+}
+
+}
+
+function atualizarGaleria(){
+
+let galeria=document.getElementById("galeriaUnica")
+
+galeria.innerHTML=""
+
+medicamentos.forEach((med,index)=>{
+
+galeria.innerHTML+=`
+
+<div class="card">
+
+${med.foto ? `<img src="${med.foto}">` : ""}
+
+<div class="nome-med">${med.medicamento}</div>
+
+<div>👤 ${med.paciente}</div>
+
+<div>💊 ${med.quantidade} comprimido(s)</div>
+
+<div>📦 ${med.codigoBarras || "-"}</div>
+
+<button class="btn-excluir" onclick="excluirMedicamento(${index})">Excluir</button>
+
+</div>
+
+`
+
+})
+
+}
+
+function excluirMedicamento(index){
+
+medicamentos.splice(index,1)
+
+localStorage.setItem("medicamentos",JSON.stringify(medicamentos))
+
+atualizarGaleria()
+
+}
+
+function limparCampos(){
+
+paciente.value=""
+medicamento.value=""
+quantidade.value=""
+codigoBarras.value=""
+foto.value=""
+
+}
+
+function dispararAlerta(med){
+
+if(alarmeAtivo) return
+
+alarmeAtivo=true
+
+document.getElementById("mensagem").innerHTML=`
+
+<div class="alerta">
+
+🔔 HORA DO MEDICAMENTO<br>
+
+💊 ${med.medicamento}<br>
+
+${med.quantidade} comprimido(s)
+
+<button class="botao-concluir" onclick="concluirMedicacao()">MEDICAÇÃO CONCLUÍDA</button>
+
+</div>
+
+`
+
+intervaloAlarme=setInterval(()=>{
+
+document.getElementById("alarmeSom").play()
+
+if(navigator.vibrate){
+
+navigator.vibrate([600,300,600])
+
+}
+
+},6000)
+
+}
+
+function concluirMedicacao(){
+
+clearInterval(intervaloAlarme)
+
+alarmeAtivo=false
+
+document.getElementById("mensagem").innerHTML=""
+
+}
+
+function verificarHorario(){
+
+let agora=new Date()
+
+let horaAtual=agora.toTimeString().slice(0,5)
+
+medicamentos.forEach(med=>{
+
+med.horarios.forEach(h=>{
+
+if(h===horaAtual){
+
+dispararAlerta(med)
+
+}
+
+})
+
+})
+
+}
+
+setInterval(verificarHorario,30000)
 
 </script>
 
