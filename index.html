@@ -353,6 +353,41 @@ container.innerHTML+=`<input type="time" class="horario" aria-label="Horário da
 }
 
 }
+ function verificarPeriodo(){
+
+let agora = Date.now();
+
+medicamentos.forEach(med=>{
+
+if(med.inativo) return;
+
+let diasPassados = (agora - med.dataInicio) / (1000*60*60*24);
+
+/* FINAL DO PERÍODO */
+
+if(diasPassados >= med.periodo){
+
+med.inativo = true;
+
+}
+
+/* RESET DIÁRIO DAS DOSES */
+
+let diasReset = (agora - med.ultimoReset) / (1000*60*60*24);
+
+if(diasReset >= 1){
+
+med.dosesTomadas = [];
+
+med.ultimoReset = agora;
+
+}
+
+});
+
+localStorage.setItem("medicamentos", JSON.stringify(medicamentos));
+
+}
 
 function mostrarToast(msg){
 
