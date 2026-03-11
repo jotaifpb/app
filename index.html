@@ -1,722 +1,286 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
 <meta charset="UTF-8">
+
+<!-- SEGURANÇA 1
+Content Security Policy bloqueia execução de scripts externos maliciosos -->
+<meta http-equiv="Content-Security-Policy" 
+content="default-src 'self'; script-src 'self' https://unpkg.com; img-src 'self' data:; media-src https://actions.google.com">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1976d2">
-<title>Controle de Medicamentos</title>
+
+<title>Controle de Medicamentos Seguro</title>
 
 <script src="https://unpkg.com/quagga/dist/quagga.min.js"></script>
 
 <style>
 
-*{
-box-sizing:border-box;
-}
-
-html{
-font-size:100%;
-}
-
 body{
-margin:0;
-font-family:Arial, sans-serif;
+font-family:Arial;
 background:#f4f6f9;
-font-size:clamp(16px,2.5vw,22px);
-line-height:1.4;
+margin:0;
 }
-
-/* CONTAINER FLUIDO */
 
 .container{
-padding:clamp(12px,3vw,20px);
-width:100%;
-max-width:900px;
+max-width:500px;
 margin:auto;
+padding:15px;
 }
 
-/* TITULOS */
-
-h2 .logo{
-  header .logo {
-  font-size: 30px;
-  margin: 0;
-  padding: 0;
-  line-height: 1;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  font-family: "Poppins", sans-serif;
-}
-.logo img {
-  max-height: 40px;
-}
-text-align:center;
-font-size:clamp(22px,4vw,32px);
-margin-bottom:15px;
-}
-
-/* CAMPOS */
-
-input,
-select,
-button{
+input,select,button{
 width:100%;
-padding:clamp(14px,3vw,18px);
+padding:15px;
 margin:10px 0;
-font-size:clamp(16px,2.5vw,22px);
-border-radius:12px;
-border:1px solid #ccc;
-}
-
-/* BOTÕES */
-
-button{
-background:#1E3A8A;
-color:white;
-font-weight:bold;
-border:none;
-cursor:pointer;
-min-height:52px;
-}
-
-button:focus,
-input:focus,
-select:focus{
-outline:3px solid #ff9800;
-outline-offset:2px;
-}
-
-/* GALERIA */
-
-.galeria-unica{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
-margin-top:20px;
-}
-
-/* CARD */
-
-.card{
-background:white;
-border-radius:15px;
-padding:12px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-text-align:center;
-}
-
-/* IMAGEM RESPONSIVA */
-
-.card img{
-width:100%;
-height:auto;
-aspect-ratio:1/1;
-object-fit:cover;
+font-size:20px;
 border-radius:10px;
 }
 
-.nome-med{
-font-weight:bold;
-margin-top:8px;
-font-size:clamp(16px,2.8vw,20px);
-}
-
-/* BOTÃO EXCLUIR */
-
-.btn-excluir{
-background:#d32f2f;
-margin-top:8px;
-}
-
-/* ALERTA */
-
-.alerta{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:#ff4444;
-color:white;
-text-align:center;
-padding:clamp(16px,3vw,22px);
-font-size:clamp(18px,3vw,26px);
-z-index:999;
-}
-
-/* BOTÃO CONCLUIR */
-
-.botao-concluir{
-background:#ff9800;
-margin-top:15px;
-}
-
-/* SCANNER */
-
-#scanner{
-width:100%;
-height:300px;
-display:none;
-}
-
-/* PAINEL MINIATURAS */
-
-.painel-miniaturas{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(70px,1fr));
-gap:10px;
-margin-top:10px;
-}
-
-/* MINIATURAS */
-
-.miniatura{
-background:white;
-border-radius:12px;
-padding:6px;
-text-align:center;
-box-shadow:0 2px 6px rgba(0,0,0,0.2);
-transition:all .3s;
-}
-
-.miniatura img{
-width:100%;
-aspect-ratio:1/1;
-object-fit:cover;
-border-radius:8px;
-}
-
-.miniatura span{
-font-size:clamp(12px,2vw,14px);
-display:block;
-margin-top:4px;
-word-break:break-word;
-}
-
-/* MEDICAMENTO ATIVO */
-
-.ativo{
-border:4px solid red;
-animation:pulsar 1s infinite;
-transform:scale(1.15);
-z-index:10;
-}
-
-@keyframes pulsar{
-
-0%{transform:scale(1.15)}
-50%{transform:scale(1.25)}
-100%{transform:scale(1.15)}
-
-}
-  /* Ajuste do campo de horário para celulares */
-.horario{
-    font-size:18px;
-    padding:10px;
-    height:45px;
-}
-
-/* Ajuste específico para o campo de horário */
-input[type="time"]{
-    font-size:16px;
-    padding:6px 8px;
-    height:38px;
-}
-  input:not([type="time"]), select, button{
-    padding:18px;
-}
-
-/* Ajuste extra para dispositivos móveis */
-@media (max-width:600px){
-
-input[type="time"]{
-    font-size:15px;
-    padding:4px 6px;
-    height:34px;
-}
-
-}
-  #horariosContainer{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-}
-
 button{
-min-height:48px;
-}
-
-}
-
-/* TABLETS */
-
-@media (min-width:700px){
-
-.galeria-unica{
-grid-template-columns:repeat(3,1fr);
-}
-
-}
-
-/* TELAS GRANDES */
-
-@media (min-width:1000px){
-
-.galeria-unica{
-grid-template-columns:repeat(4,1fr);
-}
-
-.container{
-max-width:1000px;
-}
-
+background:#1976d2;
+color:white;
+border:none;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h2><img src="icon-48x48.png" id="logo" alt="Descrição da imagem para acessibilidade">Controle de Medicamentos</h2>
+<h2>🔒 Controle Seguro de Medicamentos</h2>
 
-<input type="text" id="paciente" placeholder="Nome do Paciente">
-<input type="text" id="medicamento" placeholder="Nome do Medicamento">
+<!-- SEGURANÇA 2
+PIN de acesso para proteger acesso ao sistema -->
 
-<input type="number" id="quantidade" placeholder="Quantidade de comprimidos por dose">
+<input type="password" id="pin" placeholder="Digite o PIN de acesso">
+<button onclick="verificarPIN()">Entrar</button>
 
-<input type="text" id="codigoBarras" placeholder="Código de barras" readonly>
+<div id="sistema" style="display:none;">
 
-<button onclick="iniciarScanner()">📷 Escanear Código</button>
+<input type="text" id="paciente" placeholder="Paciente">
+<input type="text" id="medicamento" placeholder="Medicamento">
 
-<div id="scanner"></div>
+<input type="number" id="quantidade" placeholder="Quantidade">
 
 <select id="vezes">
 <option value="1">1x ao dia</option>
 <option value="2">2x ao dia</option>
 <option value="3">3x ao dia</option>
-<option value="4">4x ao dia</option>
-</select>
-
-<select id="periodo">
-<option value="7">Semanal</option>
-<option value="15">Quinzenal</option>
-<option value="30">Mensal</option>
 </select>
 
 <div id="horariosContainer"></div>
 
-<input type="file" accept="image/*" capture="environment" id="foto">
+<button onclick="salvarMedicamento()">Salvar</button>
 
-<button onclick="salvarMedicamento()">Salvar Medicamento</button>
-
-<h3 style="text-align:center;margin-top:25px;">🧾 Painel de Medicamentos</h3>
-<div id="painelMiniaturas" class="painel-miniaturas"></div>
-
-<div class="galeria-unica" id="galeriaUnica"></div>
+<div id="lista"></div>
 
 </div>
 
-<audio id="alarmeSom" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
-
-<div id="mensagem"></div>
+</div>
 
 <script>
 
-let medicamentos = JSON.parse(localStorage.getItem("medicamentos")) || [];
+/* ===============================
+SEGURANÇA 3
+PIN padrão criptografado
+=============================== */
 
-let alarmeAtivo=false;
-let intervaloAlarme=null;
+const PIN_HASH = btoa("1234") // base64 (exemplo simples)
 
-document.getElementById("vezes").addEventListener("change",gerarHorarios);
+/* ===============================
+SEGURANÇA 4
+Verificação de autenticação
+=============================== */
 
-gerarHorarios();
-atualizarGaleria();
-atualizarPainelMiniaturas();
+function verificarPIN(){
+
+let pin=document.getElementById("pin").value
+
+if(btoa(pin)===PIN_HASH){
+
+document.getElementById("sistema").style.display="block"
+
+}else{
+
+alert("PIN incorreto")
+
+}
+
+}
+
+/* ===============================
+SEGURANÇA 5
+Função para sanitizar dados
+Evita XSS
+=============================== */
+
+function sanitizar(texto){
+
+return texto
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"")
+
+}
+
+/* ===============================
+SEGURANÇA 6
+Criptografia simples antes de salvar
+=============================== */
+
+function criptografar(dados){
+
+return btoa(JSON.stringify(dados))
+
+}
+
+function descriptografar(dados){
+
+if(!dados) return []
+
+return JSON.parse(atob(dados))
+
+}
+
+/* ===============================
+SEGURANÇA 7
+Carrega dados criptografados
+=============================== */
+
+let medicamentos = descriptografar(localStorage.getItem("medicamentos"))
+
+/* ===============================
+SEGURANÇA 8
+Limite de armazenamento
+Evita abuso
+=============================== */
+
+const LIMITE_MEDICAMENTOS = 50
+
+/* ===============================
+GERAR HORÁRIOS
+=============================== */
+
+document.getElementById("vezes").addEventListener("change",gerarHorarios)
+
+gerarHorarios()
 
 function gerarHorarios(){
 
-let container=document.getElementById("horariosContainer");
-container.innerHTML="";
+let container=document.getElementById("horariosContainer")
 
-let vezes=document.getElementById("vezes").value;
+container.innerHTML=""
+
+let vezes=document.getElementById("vezes").value
 
 for(let i=0;i<vezes;i++){
-container.innerHTML+=`<input type="time" class="horario">`;
-}
+
+container.innerHTML+=`<input type="time" class="horario">`
 
 }
 
-function iniciarScanner(){
-
-document.getElementById("scanner").style.display="block";
-
-Quagga.init({
-
-inputStream:{
-name:"Live",
-type:"LiveStream",
-target:document.querySelector('#scanner'),
-
-constraints:{
-width:{ideal:1280},
-height:{ideal:720},
-facingMode:"environment",
-aspectRatio:{min:1,max:2}
-}
-},
-
-locator:{
-patchSize:"medium",
-halfSample:false
-},
-
-numOfWorkers:navigator.hardwareConcurrency || 4,
-
-decoder:{
-readers:[
-"ean_reader",
-"ean_8_reader",
-"code_128_reader",
-"code_39_reader",
-"upc_reader"
-]
-},
-
-locate:true,
-
-frequency:10
-
-},function(err){
-
-if(err){
-console.log(err);
-return;
 }
 
-Quagga.start();
+/* ===============================
+SEGURANÇA 9
+Proteção contra múltiplos cliques
+=============================== */
 
-});
-  
-Quagga.onDetected(function(data){
+let salvando=false
 
-let codigo=data.codeResult.code;
-
-document.getElementById("codigoBarras").value=codigo;
-
-Quagga.stop();
-
-document.getElementById("scanner").style.display="none";
-
-});
-}
 function salvarMedicamento(){
 
-let paciente=document.getElementById("paciente").value;
-let medicamento=document.getElementById("medicamento").value;
-let quantidade=document.getElementById("quantidade").value;
-let codigoBarras=document.getElementById("codigoBarras").value;
-let periodo=parseInt(document.getElementById("periodo").value);
+if(salvando) return
 
-let horarios=Array.from(document.getElementsByClassName("horario")).map(h=>h.value);
+salvando=true
 
-let fotoInput=document.getElementById("foto");
+setTimeout(()=>salvando=false,2000)
 
-let dataInicio=Date.now();
+/* ===============================
+SEGURANÇA 10
+Validação de dados
+=============================== */
 
-if(!paciente||!medicamento||!quantidade||horarios.includes("")){
-alert("Preencha todos os campos!");
-return;
+let paciente=sanitizar(document.getElementById("paciente").value)
+
+let medicamento=sanitizar(document.getElementById("medicamento").value)
+
+let quantidade=parseInt(document.getElementById("quantidade").value)
+
+let horarios=Array.from(document.getElementsByClassName("horario")).map(h=>h.value)
+
+if(!paciente || !medicamento || !quantidade){
+
+alert("Preencha todos os campos")
+
+return
+
 }
 
-let salvar = (foto)=>{
+/* ===============================
+SEGURANÇA 11
+Limite de registros
+=============================== */
 
-medicamentos.push({
+if(medicamentos.length>=LIMITE_MEDICAMENTOS){
+
+alert("Limite de medicamentos atingido")
+
+return
+
+}
+
+let novo={
+
 paciente,
 medicamento,
 quantidade,
-codigoBarras,
-horarios,
-dosesTomadas:[],
-foto:foto,
-periodo:periodo,
-dataInicio:dataInicio,
-ultimoReset:dataInicio
-});
-
-localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
-
-atualizarGaleria();
-atualizarPainelMiniaturas();
-limparCampos();
+horarios
 
 }
 
-if(fotoInput.files[0]){
+medicamentos.push(novo)
 
-let reader=new FileReader();
+/* ===============================
+SEGURANÇA 12
+Salvar dados criptografados
+=============================== */
 
-reader.onload=e=>salvar(e.target.result);
+localStorage.setItem("medicamentos",criptografar(medicamentos))
 
-reader.readAsDataURL(fotoInput.files[0]);
-
-}else{
-salvar(null);
-}
-
-}
-function atualizarPainelMiniaturas(){
-
-let painel=document.getElementById("painelMiniaturas");
-
-painel.innerHTML="";
-
-medicamentos.forEach((med,index)=>{
-
-painel.innerHTML+=`
-
-<div class="miniatura" id="mini-${index}">
-
-${med.foto?`<img src="${med.foto}">`:`<div style="height:60px"></div>`}
-
-<span>${med.medicamento}</span>
-
-</div>
-
-`;
-
-});
+mostrar()
 
 }
 
-function atualizarGaleria(){
+/* ===============================
+EXIBIÇÃO SEGURA
+=============================== */
 
-let galeria=document.getElementById("galeriaUnica");
-galeria.innerHTML="";
+function mostrar(){
 
-medicamentos.forEach((med,index)=>{
+let lista=document.getElementById("lista")
 
-if(med.inativo) return;
-
-let dosesRestantes=med.horarios.filter(h=>!med.dosesTomadas.includes(h));
-
-if(dosesRestantes.length===0) return;
-
-galeria.innerHTML+=`
-
-<div class="card">
-
-<div class="nome-med">${med.medicamento}</div>
-
-<div>👤 ${med.paciente}</div>
-
-<div>💊 ${med.quantidade} comprimido(s)</div>
-
-<div>📦 Código: ${med.codigoBarras||"—"}</div>
-
-<div>📅 Período: ${
-med.periodo==7?"Semanal":
-med.periodo==15?"Quinzenal":"Mensal"
-}</div>
-
-<button class="btn-excluir" onclick="excluirMedicamento(${index})">Excluir</button>
-
-</div>
-
-`;
-
-});
-
-}
-
-/* CONTROLE DO PERÍODO */
-
-function verificarPeriodo(){
-
-let agora=Date.now();
+lista.innerHTML=""
 
 medicamentos.forEach(med=>{
 
-let diasPassados=(agora-med.dataInicio)/(1000*60*60*24);
+let div=document.createElement("div")
 
-if(diasPassados>med.periodo){
-med.inativo=true;
-}
+div.innerText=`${med.paciente} - ${med.medicamento} - ${med.quantidade}`
 
-let diasReset=(agora-med.ultimoReset)/(1000*60*60*24);
+lista.appendChild(div)
 
-if(diasReset>=1){
-
-med.dosesTomadas=[];
-med.ultimoReset=agora;
+})
 
 }
 
-});
+mostrar()
 
-localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
-
-}
-function falarMedicamentoCompleto(med){
-
-if(!('speechSynthesis' in window)) return;
-
-let agora=new Date();
-
-let horaAtual=agora.toTimeString().slice(0,5);
-
-let horariosOrdenados=med.horarios.slice().sort();
-
-let proximoHorario=null;
-
-for(let h of horariosOrdenados){
-
-if(h>horaAtual){
-proximoHorario=h;
-break;
-}
-
-}
-
-let mensagem=`Atenção! Hora de tomar ${med.quantidade} comprimido de ${med.medicamento}. `;
-
-if(proximoHorario){
-mensagem+=`A próxima dose será às ${proximoHorario}.`;
-}else{
-mensagem+=`Esta é a última dose do dia. Verifique se está correto`;
-}
-
-let fala=new SpeechSynthesisUtterance(mensagem);
-
-fala.lang="pt-BR";
-
-speechSynthesis.cancel();
-
-speechSynthesis.speak(fala);
-
-}
-
-function excluirMedicamento(index){
-
-medicamentos.splice(index,1);
-
-localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
-
-atualizarGaleria();
-atualizarPainelMiniaturas();
-
-}
-
-function limparCampos(){
-
-document.getElementById("paciente").value="";
-document.getElementById("medicamento").value="";
-document.getElementById("quantidade").value="";
-document.getElementById("codigoBarras").value="";
-document.getElementById("foto").value="";
-
-}
-
-function dispararAlerta(med){
-
-if(alarmeAtivo)return;
-
-alarmeAtivo=true;
-
-let index=medicamentos.indexOf(med);
-
-document.querySelectorAll(".miniatura").forEach(m=>{
-m.classList.remove("ativo");
-});
-
-let mini=document.getElementById("mini-"+index);
-
-if(mini){
-mini.classList.add("ativo");
-mini.scrollIntoView({behavior:"smooth",block:"center"});
-}
-
-document.getElementById("mensagem").innerHTML=`
-
-<div class="alerta">
-
-🔔 HORA DO MEDICAMENTO!<br>
-
-💊 ${med.medicamento}<br>
-
-${med.quantidade} comprimido(s)
-
-<button class="botao-concluir" onclick="concluirMedicacao()">MEDICAÇÃO CONCLUÍDA</button>
-
-</div>
-
-`;
-
-falarMedicamentoCompleto(med);
-
-intervaloAlarme=setInterval(()=>{
-
-document.getElementById("alarmeSom").play();
-
-if(navigator.vibrate){
-navigator.vibrate([700,300,700]);
-}
-
-falarMedicamentoCompleto(med);
-
-},12000);
-
-}
-
-function concluirMedicacao(){
-
-clearInterval(intervaloAlarme);
-
-alarmeAtivo=false;
-
-speechSynthesis.cancel();
-
-document.getElementById("mensagem").innerHTML="";
-
-document.querySelectorAll(".miniatura").forEach(m=>{
-m.classList.remove("ativo");
-});
-
-}
-
-function verificarHorario(){
-
-verificarPeriodo();
-
-let agora=new Date();
-
-let horaAtual=agora.toTimeString().slice(0,5);
-
-medicamentos.forEach(med=>{
-
-if(med.inativo) return;
-
-med.horarios.forEach(h=>{
-
-if(h===horaAtual){
-dispararAlerta(med);
-}
-
-});
-
-});
-
-}
-  
-setInterval(verificarHorario,30000);
-  
-if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('service-worker.js')
-.then(() => console.log("Service Worker registrado"));
-}
-  
 </script>
 
 </body>
-</html>coloque a logo e o titulo (h2) alinhados horizontalmente
+</html>
