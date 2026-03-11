@@ -38,23 +38,22 @@ margin:auto;
 
 /* TITULOS */
 
-/* TITULO COM LOGO */
-
-h2{
-display:flex;
-align-items:center;
-justify-content:center;
-gap:10px;
+h2 .logo{
+  header .logo {
+  font-size: 30px;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  font-family: "Poppins", sans-serif;
+}
+.logo img {
+  max-height: 40px;
+}
+text-align:center;
 font-size:clamp(22px,4vw,32px);
 margin-bottom:15px;
-text-align:center;
-}
-
-/* LOGO */
-
-#logo{
-height:40px;
-width:auto;
 }
 
 /* CAMPOS */
@@ -73,69 +72,38 @@ border:1px solid #ccc;
 /* BOTÕES */
 
 button{
-background:#2E3F8F;
+background:#1E3A8A;
 color:white;
 font-weight:bold;
 border:none;
 cursor:pointer;
 min-height:52px;
-border-radius:12px;
-transition:0.3s;
 }
 
-button:hover{
-background:#243373;
-transform:scale(1.02);
-}
-
-button:active{
-transform:scale(0.97);
-}
-  
-button[onclick="salvarMedicamento()"]{
-background:#FF7A1A;
-font-size:20px;
+button:focus,
+input:focus,
+select:focus{
+outline:3px solid #ff9800;
+outline-offset:2px;
 }
 
 /* GALERIA */
 
 .galeria-unica{
 display:grid;
-gap:10px;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
 margin-top:20px;
-width:100%;
 }
 
 /* CARD */
 
 .card{
 background:white;
-border-radius:14px;
-padding:10px;
-box-shadow:0 4px 12px rgba(0,0,0,0.15);
+border-radius:15px;
+padding:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
 text-align:center;
-display:flex;
-flex-direction:column;
-justify-content:center;
-transition:all .3s;
-border:2px solid transparent;
-}
-
-.card:hover{
-transform:scale(1.05);
-}
-
-.nome-med{
-font-weight:bold;
-font-size:clamp(13px,2vw,16px);
-margin-bottom:5px;
-}
-
-.zoom-excluir{
-transform:scale(1.35);
-z-index:50;
-border:3px solid #ff4444;
-box-shadow:0 0 20px rgba(255,0,0,0.5);
 }
 
 /* IMAGEM RESPONSIVA */
@@ -165,19 +133,15 @@ margin-top:8px;
 
 .alerta{
 position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:#FF7A1A;
+bottom:0;
+left:0;
+right:0;
+background:#ff4444;
 color:white;
 text-align:center;
-padding:30px;
-font-size:clamp(22px,3vw,28px);
+padding:clamp(16px,3vw,22px);
+font-size:clamp(18px,3vw,26px);
 z-index:999;
-box-shadow:0 0 30px rgba(0,0,0,0.4);
-border-radius:20px;
-width:90%;
-max-width:420px;
 }
 
 /* BOTÃO CONCLUIR */
@@ -199,67 +163,43 @@ display:none;
 
 .painel-miniaturas{
 display:grid;
-gap:6px;
-margin-top:12px;
-width:100%;
+grid-template-columns:repeat(auto-fit,minmax(70px,1fr));
+gap:10px;
+margin-top:10px;
 }
 
 /* MINIATURAS */
 
 .miniatura{
 background:white;
-border-radius:8px;
-padding:3px;
+border-radius:12px;
+padding:6px;
 text-align:center;
-box-shadow:0 2px 5px rgba(0,0,0,0.15);
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-aspect-ratio:1/1;
-transition:0.25s;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
+transition:all .3s;
 }
-
-/* imagem pequena */
 
 .miniatura img{
 width:100%;
-height:100%;
+aspect-ratio:1/1;
 object-fit:cover;
-border-radius:6px;
+border-radius:8px;
 }
 
-/* nome do medicamento */
-
 .miniatura span{
-font-size:clamp(9px,1.6vw,12px);
-margin-top:2px;
-line-height:1.1;
+font-size:clamp(12px,2vw,14px);
+display:block;
+margin-top:4px;
 word-break:break-word;
 }
 
 /* MEDICAMENTO ATIVO */
 
 .ativo{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%) scale(2.2);
-z-index:1000;
-border:6px solid #FF7A1A;
-box-shadow:0 0 40px rgba(255,122,26,0.8);
-background:white;
-padding:15px;
-border-radius:20px;
-animation:pulsarZoom 1s infinite;
-}
-
-@keyframes pulsarZoom{
-
-0%{transform:translate(-50%,-50%) scale(2.2)}
-50%{transform:translate(-50%,-50%) scale(2.35)}
-100%{transform:translate(-50%,-50%) scale(2.2)}
-
+border:4px solid red;
+animation:pulsar 1s infinite;
+transform:scale(1.15);
+z-index:10;
 }
 
 @keyframes pulsar{
@@ -339,10 +279,8 @@ max-width:1000px;
 
 <div class="container">
 
-<h2>
-<img src="icon-128x128.png" id="logo" alt="Descrição da imagem para acessibilidade">
-Controle de Medicamentos
-</h2>
+<h2><img src="icon-48x48.png" id="logo" alt="Descrição da imagem para acessibilidade">Controle de Medicamentos</h2>
+
 <input type="text" id="paciente" placeholder="Nome do Paciente">
 <input type="text" id="medicamento" placeholder="Nome do Medicamento">
 
@@ -534,27 +472,13 @@ let painel=document.getElementById("painelMiniaturas");
 
 painel.innerHTML="";
 
-let total=medicamentos.length;
-
-/* calcula grade quadrada automática */
-
-let colunas=Math.ceil(Math.sqrt(total));
-
-if(colunas<4) colunas=4;
-
-/* aplica grid */
-
-painel.style.gridTemplateColumns=`repeat(${colunas},1fr)`;
-
-/* cria miniaturas */
-
 medicamentos.forEach((med,index)=>{
 
 painel.innerHTML+=`
 
 <div class="miniatura" id="mini-${index}">
 
-${med.foto?`<img src="${med.foto}">`:`<div style="height:100%"></div>`}
+${med.foto?`<img src="${med.foto}">`:`<div style="height:60px"></div>`}
 
 <span>${med.medicamento}</span>
 
@@ -565,23 +489,15 @@ ${med.foto?`<img src="${med.foto}">`:`<div style="height:100%"></div>`}
 });
 
 }
+
 function atualizarGaleria(){
 
 let galeria=document.getElementById("galeriaUnica");
-
 galeria.innerHTML="";
 
-let ativos = medicamentos.filter(m=>!m.inativo);
+medicamentos.forEach((med,index)=>{
 
-let total=ativos.length;
-
-let colunas=Math.ceil(Math.sqrt(total));
-
-if(colunas<4) colunas=4;
-
-galeria.style.gridTemplateColumns=`repeat(${colunas},1fr)`;
-
-ativos.forEach((med,index)=>{
+if(med.inativo) return;
 
 let dosesRestantes=med.horarios.filter(h=>!med.dosesTomadas.includes(h));
 
@@ -589,17 +505,22 @@ if(dosesRestantes.length===0) return;
 
 galeria.innerHTML+=`
 
-<div class="card" id="card-${index}">
+<div class="card">
 
 <div class="nome-med">${med.medicamento}</div>
 
 <div>👤 ${med.paciente}</div>
 
-<div>💊 ${med.quantidade}</div>
+<div>💊 ${med.quantidade} comprimido(s)</div>
 
-<div>📦 ${med.codigoBarras||"—"}</div>
+<div>📦 Código: ${med.codigoBarras||"—"}</div>
 
-<button class="btn-excluir" onclick="zoomExcluir(${index})">Excluir</button>
+<div>📅 Período: ${
+med.periodo==7?"Semanal":
+med.periodo==15?"Quinzenal":"Mensal"
+}</div>
+
+<button class="btn-excluir" onclick="excluirMedicamento(${index})">Excluir</button>
 
 </div>
 
@@ -609,20 +530,6 @@ galeria.innerHTML+=`
 
 }
 
-  function zoomExcluir(index){
-
-let card=document.getElementById("card-"+index);
-
-card.classList.add("zoom-excluir");
-
-setTimeout(()=>{
-
-excluirMedicamento(index);
-
-},400);
-
-}
-  
 /* CONTROLE DO PERÍODO */
 
 function verificarPeriodo(){
@@ -719,15 +626,15 @@ alarmeAtivo=true;
 
 let index=medicamentos.indexOf(med);
 
-document.querySelectorAll(".miniatura, .card").forEach(m=>{
+document.querySelectorAll(".miniatura").forEach(m=>{
 m.classList.remove("ativo");
 });
 
 let mini=document.getElementById("mini-"+index);
-let card=document.getElementById("card-"+index);
 
-if(mini) mini.classList.add("ativo");
-if(card) card.classList.add("ativo");
+if(mini){
+mini.classList.add("ativo");
+mini.scrollIntoView({behavior:"smooth",block:"center"});
 }
 
 document.getElementById("mensagem").innerHTML=`
@@ -812,4 +719,4 @@ navigator.serviceWorker.register('service-worker.js')
 </script>
 
 </body>
-</html>
+</html>coloque a logo e o titulo (h2) alinhados horizontalmente
