@@ -536,11 +536,9 @@ painel.innerHTML="";
 
 let total=medicamentos.length;
 
-/* calcula grade quadrada */
+/* calcula grade quadrada automática */
 
 let colunas=Math.ceil(Math.sqrt(total));
-
-/* mínimo 4 colunas */
 
 if(colunas<4) colunas=4;
 
@@ -556,7 +554,7 @@ painel.innerHTML+=`
 
 <div class="miniatura" id="mini-${index}">
 
-${med.foto?`<img src="${med.foto}">`:`<div style="width:100%;height:100%;background:#f0f0f0;border-radius:6px;"></div>`}
+${med.foto?`<img src="${med.foto}">`:`<div style="height:100%"></div>`}
 
 <span>${med.medicamento}</span>
 
@@ -567,7 +565,6 @@ ${med.foto?`<img src="${med.foto}">`:`<div style="width:100%;height:100%;backgro
 });
 
 }
-
 function atualizarGaleria(){
 
 let galeria=document.getElementById("galeriaUnica");
