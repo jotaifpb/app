@@ -13,7 +13,7 @@ body{
 margin:0;
 font-family:Arial, sans-serif;
 background:#f4f6f9;
-font-size:20px;
+font-size:22px;
 }
 
 .container{
@@ -24,14 +24,14 @@ margin:auto;
 
 h2{
 text-align:center;
-font-size:28px;
+font-size:30px;
 }
 
 input, select, button{
 width:100%;
-padding:15px;
-margin:8px 0;
-font-size:20px;
+padding:18px;
+margin:10px 0;
+font-size:22px;
 border-radius:12px;
 border:1px solid #ccc;
 }
@@ -46,7 +46,7 @@ border:none;
 .galeria-unica{
 display:grid;
 grid-template-columns: repeat(2, 1fr);
-gap:12px;
+gap:15px;
 margin-top:20px;
 }
 
@@ -67,45 +67,30 @@ border-radius:10px;
 
 .nome-med{
 font-weight:bold;
-margin-top:6px;
+margin-top:8px;
 }
 
 .btn-excluir{
 background:#d32f2f;
-margin-top:6px;
-}
-
-.botao-concluir{
-background:#4caf50;
-border:none;
-color:white;
-border-radius:10px;
-padding:12px;
-margin-top:10px;
-font-size:16px;
-}
-
-.alerta-overlay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:999;
+margin-top:8px;
 }
 
 .alerta{
-background:white;
-padding:20px;
-border-radius:16px;
-width:90%;
-max-width:320px;
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#ff4444;
+color:white;
 text-align:center;
-box-shadow:0 10px 30px rgba(0,0,0,0.3);
+padding:20px;
+font-size:26px;
+z-index:999;
+}
+
+.botao-concluir{
+background:#ff9800;
+margin-top:15px;
 }
 
 #scanner{
@@ -114,7 +99,7 @@ height:300px;
 display:none;
 }
 
-/* MINIATURAS (MANTIDAS COMO ERAM) */
+/* PAINEL MINIATURAS */
 
 .painel-miniaturas{
 display:grid;
@@ -125,10 +110,11 @@ margin-top:10px;
 
 .miniatura{
 background:white;
-border-radius:10px;
+border-radius:12px;
 padding:6px;
 text-align:center;
 box-shadow:0 2px 6px rgba(0,0,0,0.2);
+transition:all .3s;
 }
 
 .miniatura img{
@@ -139,18 +125,22 @@ border-radius:8px;
 }
 
 .miniatura span{
-font-size:13px;
+font-size:14px;
+display:block;
+margin-top:4px;
 }
 
 .ativo{
-border:3px solid red;
+border:4px solid red;
 animation:pulsar 1s infinite;
+transform:scale(1.2);
+z-index:10;
 }
 
 @keyframes pulsar{
-0%{transform:scale(1)}
-50%{transform:scale(1.1)}
-100%{transform:scale(1)}
+0%{transform:scale(1.2)}
+50%{transform:scale(1.3)}
+100%{transform:scale(1.2)}
 }
 
 </style>
@@ -179,8 +169,6 @@ animation:pulsar 1s infinite;
 <option value="3">3x ao dia</option>
 </select>
 
-<!-- NOVO PERÍODO -->
-
 <select id="periodo">
 <option value="7">Semanal</option>
 <option value="15">Quinzenal</option>
@@ -193,8 +181,7 @@ animation:pulsar 1s infinite;
 
 <button onclick="salvarMedicamento()">Salvar Medicamento</button>
 
-<h3 style="text-align:center;margin-top:20px;">🧾 Painel de Medicamentos</h3>
-
+<h3 style="text-align:center;margin-top:25px;">🧾 Painel de Medicamentos</h3>
 <div id="painelMiniaturas" class="painel-miniaturas"></div>
 
 <div class="galeria-unica" id="galeriaUnica"></div>
@@ -211,7 +198,6 @@ let medicamentos = JSON.parse(localStorage.getItem("medicamentos")) || [];
 
 let alarmeAtivo=false;
 let intervaloAlarme=null;
-let horarioAtualMedicacao=null;
 
 document.getElementById("vezes").addEventListener("change",gerarHorarios);
 
@@ -231,8 +217,6 @@ container.innerHTML+=`<input type="time" class="horario">`;
 }
 
 }
-
-/* SCANNER */
 
 function iniciarScanner(){
 
@@ -267,8 +251,6 @@ document.getElementById("scanner").style.display="none";
 
 }
 
-/* SALVAR MEDICAMENTO */
-
 function salvarMedicamento(){
 
 let paciente=document.getElementById("paciente").value;
@@ -298,7 +280,6 @@ codigoBarras,
 horarios,
 dosesTomadas:[],
 foto:foto,
-
 periodo:periodo,
 dataInicio:dataInicio,
 ultimoReset:dataInicio
@@ -325,28 +306,29 @@ salvar(null);
 }
 
 }
-
-/* MINIATURAS ORIGINAIS */
-
 function atualizarPainelMiniaturas(){
 
 let painel=document.getElementById("painelMiniaturas");
+
 painel.innerHTML="";
 
 medicamentos.forEach((med,index)=>{
 
 painel.innerHTML+=`
+
 <div class="miniatura" id="mini-${index}">
+
 ${med.foto?`<img src="${med.foto}">`:`<div style="height:60px"></div>`}
+
 <span>${med.medicamento}</span>
+
 </div>
+
 `;
 
 });
 
 }
-
-/* GALERIA */
 
 function atualizarGaleria(){
 
@@ -365,8 +347,6 @@ galeria.innerHTML+=`
 
 <div class="card">
 
-${med.foto?`<img src="${med.foto}">`:""}
-
 <div class="nome-med">${med.medicamento}</div>
 
 <div>👤 ${med.paciente}</div>
@@ -375,7 +355,7 @@ ${med.foto?`<img src="${med.foto}">`:""}
 
 <div>📦 Código: ${med.codigoBarras||"—"}</div>
 
-<div>📅 ${
+<div>📅 Período: ${
 med.periodo==7?"Semanal":
 med.periodo==15?"Quinzenal":"Mensal"
 }</div>
@@ -407,8 +387,10 @@ med.inativo=true;
 let diasReset=(agora-med.ultimoReset)/(1000*60*60*24);
 
 if(diasReset>=1){
+
 med.dosesTomadas=[];
 med.ultimoReset=agora;
+
 }
 
 });
@@ -416,85 +398,44 @@ med.ultimoReset=agora;
 localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
 
 }
+function falarMedicamentoCompleto(med){
 
-/* ALERTA */
+if(!('speechSynthesis' in window)) return;
 
-function dispararAlerta(med){
+let agora=new Date();
 
-if(alarmeAtivo)return;
+let horaAtual=agora.toTimeString().slice(0,5);
 
-alarmeAtivo=true;
+let horariosOrdenados=med.horarios.slice().sort();
 
-horarioAtualMedicacao=new Date().toTimeString().slice(0,5);
+let proximoHorario=null;
 
-let index=medicamentos.indexOf(med);
+for(let h of horariosOrdenados){
 
-document.querySelectorAll(".miniatura").forEach(m=>m.classList.remove("ativo"));
-
-let mini=document.getElementById("mini-"+index);
-
-if(mini){
-mini.classList.add("ativo");
-mini.scrollIntoView({behavior:"smooth",block:"center"});
-}
-
-document.getElementById("mensagem").innerHTML=`
-
-<div class="alerta-overlay">
-
-<div class="alerta">
-
-<h3>🔔 Hora do medicamento</h3>
-
-<p><strong>${med.medicamento}</strong></p>
-
-<p>💊 ${med.quantidade} comprimido(s)</p>
-
-<button class="botao-concluir" onclick="concluirMedicacao()">✔ Concluir</button>
-
-</div>
-
-</div>
-
-`;
-
-intervaloAlarme=setInterval(()=>{
-
-document.getElementById("alarmeSom").play();
-
-},12000);
-
-}
-
-/* CONCLUIR */
-
-function concluirMedicacao(){
-
-clearInterval(intervaloAlarme);
-
-alarmeAtivo=false;
-
-document.getElementById("mensagem").innerHTML="";
-
-document.querySelectorAll(".miniatura").forEach(m=>m.classList.remove("ativo"));
-
-let med=medicamentos.find(m=>m.horarios.includes(horarioAtualMedicacao));
-
-if(med){
-
-if(!med.dosesTomadas.includes(horarioAtualMedicacao)){
-med.dosesTomadas.push(horarioAtualMedicacao);
+if(h>horaAtual){
+proximoHorario=h;
+break;
 }
 
 }
 
-localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
+let mensagem=`Atenção! Hora de tomar ${med.quantidade} comprimido de ${med.medicamento}. `;
 
-atualizarGaleria();
-
+if(proximoHorario){
+mensagem+=`A próxima dose será às ${proximoHorario} horas.`;
+}else{
+mensagem+=`Esta é a última dose do dia. Verifique se está correto`;
 }
 
-/* EXCLUIR */
+let fala=new SpeechSynthesisUtterance(mensagem);
+
+fala.lang="pt-BR";
+
+speechSynthesis.cancel();
+
+speechSynthesis.speak(fala);
+
+}
 
 function excluirMedicamento(index){
 
@@ -507,8 +448,6 @@ atualizarPainelMiniaturas();
 
 }
 
-/* LIMPAR */
-
 function limparCampos(){
 
 document.getElementById("paciente").value="";
@@ -519,7 +458,72 @@ document.getElementById("foto").value="";
 
 }
 
-/* VERIFICAR HORÁRIO */
+function dispararAlerta(med){
+
+if(alarmeAtivo)return;
+
+alarmeAtivo=true;
+
+let index=medicamentos.indexOf(med);
+
+document.querySelectorAll(".miniatura").forEach(m=>{
+m.classList.remove("ativo");
+});
+
+let mini=document.getElementById("mini-"+index);
+
+if(mini){
+mini.classList.add("ativo");
+mini.scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+document.getElementById("mensagem").innerHTML=`
+
+<div class="alerta">
+
+🔔 HORA DO MEDICAMENTO!<br>
+
+💊 ${med.medicamento}<br>
+
+${med.quantidade} comprimido(s)
+
+<button class="botao-concluir" onclick="concluirMedicacao()">MEDICAÇÃO CONCLUÍDA</button>
+
+</div>
+
+`;
+
+falarMedicamentoCompleto(med);
+
+intervaloAlarme=setInterval(()=>{
+
+document.getElementById("alarmeSom").play();
+
+if(navigator.vibrate){
+navigator.vibrate([700,300,700]);
+}
+
+falarMedicamentoCompleto(med);
+
+},12000);
+
+}
+
+function concluirMedicacao(){
+
+clearInterval(intervaloAlarme);
+
+alarmeAtivo=false;
+
+speechSynthesis.cancel();
+
+document.getElementById("mensagem").innerHTML="";
+
+document.querySelectorAll(".miniatura").forEach(m=>{
+m.classList.remove("ativo");
+});
+
+}
 
 function verificarHorario(){
 
@@ -544,9 +548,9 @@ dispararAlerta(med);
 });
 
 }
-
+  
 setInterval(verificarHorario,30000);
-
+  
 </script>
 
 </body>
