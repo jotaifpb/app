@@ -220,8 +220,12 @@ grid-template-columns:1fr;
 <label>👤 Paciente</label>
 <input type="text" id="paciente" aria-label="Nome do paciente">
 
-<label>💊 Medicamento</label>
-<input type="text" id="medicamento" aria-label="Nome do medicamento">
+<input list="listaMedicamentos" id="medicamento" placeholder="Nome do Medicamento">
+
+<datalist id="listaMedicamentos"></datalist>
+
+<button onclick="salvarNomeMedicamento()">➕ Adicionar à lista</button>
+<button onclick="removerNomeMedicamento()">🗑️ Remover da lista</button>
 
 <label>🔢 Quantidade por dose</label>
 <input type="number" id="quantidade">
