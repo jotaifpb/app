@@ -96,8 +96,8 @@ overflow:hidden;
 
 .galeria-unica{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:15px;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:12px;
 margin-top:20px;
 }
 
@@ -128,29 +128,36 @@ margin-top:5px;
 
 .painel-miniaturas{
 display:grid;
-gap:10px;
+grid-template-columns:repeat(auto-fit,minmax(70px,1fr));
+gap:8px;
 margin-top:10px;
 }
 
 .miniatura{
 background:white;
-border-radius:12px;
-padding:6px;
+border-radius:10px;
+padding:4px;
 text-align:center;
-box-shadow:0 2px 6px rgba(0,0,0,0.2);
+box-shadow:0 2px 6px rgba(0,0,0,0.15);
+transition:transform .2s;
+}
+
+.miniatura:hover{
+transform:scale(1.05);
 }
 
 .miniatura img{
 width:100%;
 aspect-ratio:1/1;
 object-fit:cover;
-border-radius:8px;
+border-radius:6px;
 }
 
 .miniatura span{
-font-size:14px;
+font-size:11px;
 display:block;
-margin-top:4px;
+margin-top:2px;
+line-height:1.1;
 }
 
 .alerta{
