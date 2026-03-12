@@ -171,6 +171,43 @@ text-align:center;
 padding:25px;
 font-size:26px;
 }
+  /* MEDICAMENTO EM ALERTA */
+
+.med-alerta{
+transform:scale(1.25);
+box-shadow:0 0 20px #ff0000;
+border:3px solid red;
+z-index:10;
+position:relative;
+animation:pulsar 1s infinite alternate;
+}
+
+@keyframes pulsar{
+from{transform:scale(1.2);}
+to{transform:scale(1.3);}
+}
+
+/* ESCURECER OUTROS MEDICAMENTOS */
+
+.med-desfocado{
+opacity:0.3;
+filter:blur(1px);
+}
+
+/* ALERTA */
+
+.alerta-med{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:#c62828;
+color:white;
+text-align:center;
+padding:25px;
+font-size:26px;
+z-index:9999;
+}
 
 </style>
 </head>
@@ -519,7 +556,30 @@ atualizarGaleria();
 atualizarPainelMiniaturas();
 
 }
+function destacarMedicamento(index){
 
+let cards=document.querySelectorAll(".card");
+
+cards.forEach(c=>{
+
+c.classList.remove("med-alerta");
+c.classList.add("med-desfocado");
+
+});
+
+if(cards[index]){
+
+cards[index].classList.add("med-alerta");
+cards[index].classList.remove("med-desfocado");
+
+cards[index].scrollIntoView({
+behavior:"smooth",
+block:"center"
+});
+
+}
+
+}
 /* LIMPAR */
 
 function limparCampos(){
@@ -542,13 +602,15 @@ function verificarHorario(){
 
 let agora=new Date().toTimeString().slice(0,5);
 
-medicamentos.forEach(med=>{
+medicamentos.forEach((med,index)=>{
 
 med.horarios.forEach(h=>{
 
 if(h===agora){
 
-document.getElementById("alarmeSom").play();
+destacarMedicamento(index);
+
+dispararAlerta(med,index);
 
 }
 
@@ -560,6 +622,46 @@ document.getElementById("alarmeSom").play();
 
 setInterval(verificarHorario,30000);
 
+function dispararAlerta(med,index){
+
+let som=document.getElementById("alarmeSom");
+
+let contador=0;
+
+let intervalo=setInterval(()=>{
+
+if(!document.querySelector(".alerta-med")){
+clearInterval(intervalo);
+return;
+}
+
+if(contador%2===0){
+
+som.play();
+
+}else{
+
+let fala=new SpeechSynthesisUtterance(
+"Atenção. Hora de tomar " +
+med.quantidade +
+" comprimido de " +
+med.medicamento
+);
+
+fala.lang="pt-BR";
+
+speechSynthesis.speak(fala);
+
+}
+
+contador++;
+
+},7000);
+
+mostrarAlerta(med,index);
+
+}
+
 /* INICIALIZA */
 
 atualizarListaMedicamentos();
@@ -568,6 +670,41 @@ atualizarGaleria();
 
 atualizarPainelMiniaturas();
 
+function mostrarAlerta(med,index){
+
+let div=document.createElement("div");
+
+div.className="alerta-med";
+
+div.innerHTML=`
+💊 Hora do medicamento:<br>
+<strong>${med.medicamento}</strong><br>
+Quantidade: ${med.quantidade}
+<br><br>
+<button class="botao-concluir" onclick="confirmarDose(${index})">
+✔ Medicação feita
+</button>
+`;
+
+document.body.appendChild(div);
+
+}
+function confirmarDose(index){
+
+let alerta=document.querySelector(".alerta-med");
+
+if(alerta) alerta.remove();
+
+let cards=document.querySelectorAll(".card");
+
+cards.forEach(c=>{
+
+c.classList.remove("med-alerta");
+c.classList.remove("med-desfocado");
+
+});
+
+}
 </script>
 
 </body>
