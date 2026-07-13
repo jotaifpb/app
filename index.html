@@ -9,7 +9,7 @@
 
 <title>Controle de Medicamentos</title>
 
-<script src="https://unpkg.com/quagga/dist/quagga.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.4/dist/quagga.min.js"></script>
 
 <style>
 
@@ -50,20 +50,80 @@ min-height:100vh;
 padding-bottom:calc(var(--nav-altura) + 26px);
 }
 
+/* ===== ACESSIBILIDADE: LINK "PULAR PARA CONTEÚDO" ===== */
+
+.skip-link{
+position:fixed;
+top:-60px;
+left:8px;
+background:#fff;
+color:var(--cor2);
+padding:10px 16px;
+border-radius:10px;
+font-weight:700;
+font-size:14px;
+z-index:200;
+box-shadow:0 4px 14px rgba(0,0,0,0.25);
+transition:top .15s ease;
+text-decoration:none;
+}
+
+.skip-link:focus{
+top:8px;
+}
+
+/* ===== FOCO VISÍVEL (ACESSIBILIDADE) ===== */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible{
+outline:3px solid var(--cor3);
+outline-offset:2px;
+}
+
 header{
 background:rgba(255,255,255,0.97);
 backdrop-filter:blur(6px);
-padding:20px 15px;
+padding:18px 15px 14px;
 text-align:center;
-font-size:24px;
-font-weight:800;
-letter-spacing:.2px;
-color:var(--cor2);
 box-shadow:0 4px 18px rgba(0,0,0,0.18);
 position:sticky;
 top:0;
 z-index:50;
 border-bottom:3px solid var(--cor1);
+}
+
+header .titulo-app{
+font-size:24px;
+font-weight:800;
+letter-spacing:.2px;
+color:var(--cor2);
+margin:0;
+}
+
+/* ===== SELO DE SEGURANÇA / DADOS LOCAIS — dentro do cabeçalho, centralizado, sempre no topo ===== */
+
+header .selo-seguranca{
+max-width:520px;
+margin:10px auto 0;
+background:transparent;
+border:none;
+box-shadow:none;
+color:#1b5e2e;
+padding:0;
+font-size:12.5px;
+line-height:1.4;
+display:flex;
+gap:8px;
+align-items:center;
+justify-content:center;
+text-align:center;
+}
+
+header .selo-seguranca .icone-cadeado{
+font-size:16px;
+flex-shrink:0;
 }
 
 .container{
@@ -159,7 +219,22 @@ color:#fff;
 box-shadow:0 6px 14px rgba(29,86,166,0.35);
 }
 
-/* ===== FORM ===== */
+/* ===== PROGRESSO DO CADASTRO ===== */
+
+.progresso-formulario{
+text-align:center;
+color:#fff;
+font-size:13px;
+font-weight:700;
+background:rgba(255,255,255,0.18);
+border:1.5px dashed rgba(255,255,255,0.55);
+border-radius:12px;
+padding:8px 12px;
+margin-bottom:14px;
+letter-spacing:.3px;
+}
+
+/* ===== FORM / ETAPAS (FIELDSETS PROGRESSIVOS) ===== */
 
 form{
 background:var(--card-bg);
@@ -167,6 +242,58 @@ padding:22px 18px 20px;
 border-radius:22px;
 box-shadow:var(--sombra);
 border:1px solid rgba(255,255,255,0.6);
+}
+
+.grupo-campo{
+border:none;
+margin:0 0 18px;
+padding:0 0 16px;
+border-bottom:1.5px dashed var(--borda-suave);
+transition:opacity .2s ease;
+}
+
+.grupo-campo:last-of-type{
+border-bottom:none;
+padding-bottom:0;
+margin-bottom:0;
+}
+
+.grupo-campo legend{
+font-weight:800;
+font-size:14.5px;
+color:var(--cor2);
+padding:0;
+margin-bottom:8px;
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.grupo-campo[disabled]{
+opacity:.45;
+filter:grayscale(.25);
+}
+
+.grupo-campo[disabled] legend::after{
+content:"🔒 conclua a etapa anterior";
+font-size:11px;
+font-weight:600;
+color:var(--texto-suave);
+margin-left:auto;
+}
+
+.etapa-opcional{
+font-size:11px;
+font-weight:600;
+color:var(--texto-suave);
+margin-left:6px;
+}
+
+.dica-campo{
+font-size:12px;
+color:var(--cor2);
+margin:2px 0 4px;
+min-height:14px;
 }
 
 label{
@@ -179,8 +306,12 @@ margin-bottom:2px;
 letter-spacing:.2px;
 }
 
-label:first-of-type{
+.grupo-campo > label:first-of-type{
 margin-top:0;
+}
+
+.marca-obrigatorio{
+color:var(--vermelho);
 }
 
 input,select,button{
@@ -205,6 +336,17 @@ outline:none;
 border-color:var(--cor1);
 box-shadow:0 0 0 4px rgba(47,127,224,0.15);
 background:#fff;
+}
+
+input.campo-invalido,
+select.campo-invalido{
+border-color:var(--vermelho);
+background:#fff5f5;
+}
+
+input.campo-invalido:focus,
+select.campo-invalido:focus{
+box-shadow:0 0 0 4px rgba(229,72,77,0.18);
 }
 
 select{
@@ -239,6 +381,14 @@ button:active{
 transform:translateY(0);
 }
 
+button:disabled{
+opacity:.5;
+cursor:not-allowed;
+transform:none;
+filter:none;
+box-shadow:none;
+}
+
 .btn-excluir{
 background:linear-gradient(135deg,var(--vermelho),#b3261e);
 box-shadow:0 6px 14px rgba(211,47,47,0.35);
@@ -261,6 +411,27 @@ border-radius:14px;
 .btn-scan{
 background:linear-gradient(135deg,#9b6ae0,var(--roxo));
 box-shadow:0 6px 16px rgba(124,79,214,0.4);
+}
+
+.btn-pular{
+background:transparent;
+color:var(--texto-suave);
+border:1.5px dashed var(--borda-suave);
+box-shadow:none;
+font-size:13px;
+font-weight:700;
+padding:10px;
+}
+
+.btn-pular:hover{
+background:rgba(47,127,224,0.06);
+box-shadow:none;
+transform:none;
+}
+
+.btn-salvar-principal{
+font-size:17px;
+padding:16px;
 }
 
 #scanner{
@@ -446,29 +617,6 @@ display:inline-block;
 margin:4px 0;
 }
 
-/* ===== SELO DE SEGURANÇA / DADOS LOCAIS ===== */
-
-.selo-seguranca{
-max-width:560px;
-margin:14px auto 0;
-background:rgba(255,255,255,0.95);
-border:1.5px solid var(--verde);
-color:#1b5e2e;
-border-radius:14px;
-padding:12px 16px;
-font-size:13px;
-line-height:1.4;
-box-shadow:0 4px 14px rgba(0,0,0,0.12);
-display:flex;
-gap:10px;
-align-items:flex-start;
-}
-
-.selo-seguranca .icone-cadeado{
-font-size:20px;
-flex-shrink:0;
-}
-
 /* ===== MODAL DE CONFERÊNCIA / CHECKLIST ===== */
 
 .overlay-checklist{
@@ -626,7 +774,8 @@ font-size:14px;
 }
 
 @media (max-width:420px){
-header{font-size:20px;padding:16px 10px;}
+header .titulo-app{font-size:20px;}
+header .selo-seguranca{font-size:11.5px;}
 .nome-med{font-size:17px;}
 }
 
@@ -635,50 +784,65 @@ header{font-size:20px;padding:16px 10px;}
 
 <body>
 
+<a href="#conteudo-principal" class="skip-link">Pular para o conteúdo principal</a>
+
 <header>
-💊 Controle Inteligente de Medicamentos
+<h1 class="titulo-app">💊 Controle Inteligente de Medicamentos</h1>
+<p class="selo-seguranca" role="note" aria-label="Aviso de privacidade dos dados">
+<span class="icone-cadeado" aria-hidden="true">🔒</span>
+<span>Todos os medicamentos e fotos ficam salvos <strong>somente neste dispositivo</strong> (armazenamento local do navegador). Nenhuma informação é enviada para a internet ou para servidores externos.</span>
+</p>
 </header>
 
-<div class="selo-seguranca">
-<span class="icone-cadeado">🔒</span>
-<span>Todos os medicamentos e fotos ficam salvos <strong>somente neste dispositivo</strong> (armazenamento local do navegador). Nenhuma informação é enviada para a internet ou para servidores externos.</span>
-</div>
-
-<div class="container">
+<div class="container" id="conteudo-principal" tabindex="-1">
 
 <!-- ===== TELA: CADASTRAR ===== -->
-<section class="tela" id="tela-cadastro">
+<section class="tela" id="tela-cadastro" role="tabpanel" aria-labelledby="navBtn-cadastro tituloCadastro" tabindex="0">
 
-<h3 class="secao-titulo">💊 Cadastrar Medicamentos</h3>
+<h3 class="secao-titulo" id="tituloCadastro">💊 Cadastrar Medicamentos</h3>
 
-<form>
+<p class="progresso-formulario" id="progressoFormulario" aria-live="polite" role="status">Etapa 1 de 6 — Preencha o paciente para começar</p>
 
-<label>👤 Paciente</label>
-<input type="text" id="paciente">
+<form autocomplete="off">
 
-<label>💊 Medicamento Cadastrado</label>
+<fieldset class="grupo-campo" id="grupo-paciente">
+<legend>1. Paciente</legend>
+
+<label for="paciente">👤 Nome do paciente <span class="marca-obrigatorio" aria-hidden="true">*</span></label>
+<input type="text" id="paciente" required aria-required="true" maxlength="80" autocomplete="name" placeholder="Digite o nome completo">
+
+</fieldset>
+
+<fieldset class="grupo-campo" id="grupo-medicamento" disabled>
+<legend>2. Medicamento (dose)</legend>
+
+<label for="medicamento">💊 Medicamento cadastrado</label>
 <select id="medicamento">
 <option value="">Confira seus medicamentos</option>
 </select>
 
-<label>➕ Novo medicamento</label>
-<input type="text" id="novoMedicamento" placeholder="Adicionar novo medicamento">
+<label for="novoMedicamento">➕ Novo medicamento</label>
+<input type="text" id="novoMedicamento" placeholder="Adicionar novo medicamento" maxlength="80">
+<div class="dica-campo" id="dicaMedicamento" aria-live="polite"></div>
 
 <button type="button" onclick="adicionarMedicamentoLista()">➕ Adicionar medicamento</button>
 
 <button type="button" class="btn-excluir" onclick="removerMedicamentoLista()">🗑️ Remover medicamento</button>
 
-<label>🔢 Quantidade por dose</label>
-<input type="number" id="quantidade">
+</fieldset>
 
-<label>📦 Código de barras</label>
-<input type="text" id="codigoBarras" readonly>
+<fieldset class="grupo-campo" id="grupo-quantidade" disabled>
+<legend>3. Quantidade</legend>
 
-<button type="button" class="btn-scan" onclick="iniciarScanner()">📷 Escanear Código</button>
+<label for="quantidade">🔢 Quantidade por dose <span class="marca-obrigatorio" aria-hidden="true">*</span></label>
+<input type="number" id="quantidade" required aria-required="true" min="1" max="20" step="1" inputmode="numeric" placeholder="Ex.: 1">
 
-<div id="scanner"></div>
+</fieldset>
 
-<label>⏰ Quantas vezes ao dia?</label>
+<fieldset class="grupo-campo" id="grupo-horario" disabled>
+<legend>4. Horário</legend>
+
+<label for="vezes">⏰ Quantas vezes ao dia?</label>
 <select id="vezes">
 <option value="1">1x</option>
 <option value="2">2x</option>
@@ -686,69 +850,133 @@ header{font-size:20px;padding:16px 10px;}
 <option value="4">4x</option>
 </select>
 
-<label>📅 Período</label>
+<label for="periodo">📅 Período</label>
 <select id="periodo">
 <option value="7">Semanal</option>
 <option value="15">Quinzenal</option>
 <option value="30">Mensal</option>
 </select>
 
-<div id="horariosContainer"></div>
+<div id="horariosContainer" role="group" aria-label="Horários de administração"></div>
 
-<label>📷 Foto</label>
-<input type="file" accept="image/*" capture="environment" id="foto">
+</fieldset>
 
-<button type="button" onclick="verificarEConfirmar()">💾 Salvar Medicamento</button>
+<fieldset class="grupo-campo" id="grupo-codigo" disabled data-concluida="false">
+<legend>5. Código de barras <span class="etapa-opcional">(opcional)</span></legend>
+
+<label for="codigoBarras">📦 Código de barras</label>
+<input type="text" id="codigoBarras" readonly maxlength="14" aria-describedby="dicaCodigo">
+<div class="dica-campo" id="dicaCodigo">Escaneie a embalagem ou pule esta etapa.</div>
+
+<button type="button" class="btn-scan" onclick="iniciarScanner()">📷 Escanear Código</button>
+
+<div id="scanner" role="region" aria-label="Câmera do leitor de código de barras"></div>
+
+<button type="button" class="btn-pular" onclick="pularEtapaCodigoBarras()">Pular esta etapa (opcional)</button>
+
+</fieldset>
+
+<fieldset class="grupo-campo" id="grupo-foto" disabled>
+<legend>6. Foto <span class="etapa-opcional">(opcional)</span></legend>
+
+<label for="foto">📷 Foto</label>
+<input type="file" accept="image/*" capture="environment" id="foto" aria-describedby="dicaFoto">
+<div class="dica-campo" id="dicaFoto">Ajuda a identificar o medicamento com segurança.</div>
+
+</fieldset>
+
+<button type="button" class="btn-salvar-principal" id="btnSalvarMedicamento" onclick="verificarEConfirmar()" disabled>💾 Salvar Medicamento</button>
 
 </form>
 
 </section>
 
 <!-- ===== TELA: MEUS REMÉDIOS ===== -->
-<section class="tela" id="tela-meus-remedios">
+<section class="tela" id="tela-meus-remedios" role="tabpanel" aria-labelledby="navBtn-meus-remedios tituloMeusRemedios" tabindex="0">
 
-<h3 class="secao-titulo">📋 Meus Medicamentos</h3>
+<h3 class="secao-titulo" id="tituloMeusRemedios">📋 Meus Medicamentos</h3>
 
-<div id="painelMiniaturas" class="painel-miniaturas"></div>
+<div id="painelMiniaturas" class="painel-miniaturas" role="list" aria-label="Lista rápida de medicamentos cadastrados"></div>
 
 </section>
 
 <!-- ===== TELA: BIBLIOTECA ===== -->
-<section class="tela" id="tela-biblioteca">
+<section class="tela" id="tela-biblioteca" role="tabpanel" aria-labelledby="navBtn-biblioteca tituloBiblioteca" tabindex="0">
 
-<h3 class="secao-titulo">📦 Detalhes da Biblioteca</h3>
+<h3 class="secao-titulo" id="tituloBiblioteca">📦 Detalhes da Biblioteca</h3>
 
-<div class="galeria-unica" id="galeriaUnica"></div>
+<div class="galeria-unica" id="galeriaUnica" role="list" aria-label="Detalhes de todos os medicamentos cadastrados"></div>
 
 </section>
 
 </div>
 
-<nav class="nav-principal">
-<div class="nav-principal-inner">
-<button type="button" class="nav-botao" id="navBtn-cadastro" onclick="mostrarTela('cadastro')">
-<span class="nav-icone">💊</span>Cadastrar
+<nav class="nav-principal" aria-label="Navegação principal">
+<div class="nav-principal-inner" role="tablist" aria-label="Seções do aplicativo">
+<button type="button" class="nav-botao" id="navBtn-cadastro" role="tab" aria-selected="false" aria-controls="tela-cadastro" onclick="mostrarTela('cadastro')">
+<span class="nav-icone" aria-hidden="true">💊</span>Cadastrar
 </button>
-<button type="button" class="nav-botao" id="navBtn-meus-remedios" onclick="mostrarTela('meus-remedios')">
-<span class="nav-icone">📋</span>Meus Remédios
+<button type="button" class="nav-botao" id="navBtn-meus-remedios" role="tab" aria-selected="true" aria-controls="tela-meus-remedios" onclick="mostrarTela('meus-remedios')">
+<span class="nav-icone" aria-hidden="true">📋</span>Meus Remédios
 </button>
-<button type="button" class="nav-botao" id="navBtn-biblioteca" onclick="mostrarTela('biblioteca')">
-<span class="nav-icone">📦</span>Biblioteca
+<button type="button" class="nav-botao" id="navBtn-biblioteca" role="tab" aria-selected="false" aria-controls="tela-biblioteca" onclick="mostrarTela('biblioteca')">
+<span class="nav-icone" aria-hidden="true">📦</span>Biblioteca
 </button>
 </div>
 </nav>
 
 <audio id="alarmeSom" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
-<div id="mensagem"></div>
+<div id="mensagem" role="status" aria-live="polite"></div>
 
 <script>
 
+/* ===================================================== */
+/* SEGURANÇA DA INFORMAÇÃO — utilitários                  */
+/* (camada adicional; não altera a lógica original)       */
+/* ===================================================== */
+
+function escaparHTML(valor){
+
+if(valor===null||valor===undefined) return "";
+
+return String(valor).replace(/[&<>"']/g,function(c){
+
+const mapa={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
+
+return mapa[c];
+
+});
+
+}
+
+function lerArmazenamentoSeguro(chave){
+
+try{
+
+const bruto=localStorage.getItem(chave);
+
+if(!bruto) return [];
+
+const dados=JSON.parse(bruto);
+
+return Array.isArray(dados) ? dados : [];
+
+}catch(erro){
+
+console.error("Falha ao ler dados salvos (\""+chave+"\"). Iniciando lista vazia por segurança.",erro);
+
+return [];
+
+}
+
+}
+
 /* BANCO LOCAL */
 
-let medicamentos = JSON.parse(localStorage.getItem("medicamentos")) || [];
+let medicamentos = lerArmazenamentoSeguro("medicamentos");
 
-let listaMedicamentos = JSON.parse(localStorage.getItem("listaMedicamentos")) || [];
+let listaMedicamentos = lerArmazenamentoSeguro("listaMedicamentos");
 
 /* LISTA */
 
@@ -790,6 +1018,8 @@ atualizarListaMedicamentos();
 
 document.getElementById("novoMedicamento").value="";
 
+atualizarProgressaoFormulario();
+
 }
 
 function removerMedicamentoLista(){
@@ -801,6 +1031,8 @@ listaMedicamentos=listaMedicamentos.filter(m=>m!==nome);
 localStorage.setItem("listaMedicamentos",JSON.stringify(listaMedicamentos));
 
 atualizarListaMedicamentos();
+
+atualizarProgressaoFormulario();
 
 }
 
@@ -818,9 +1050,11 @@ let vezes=document.getElementById("vezes").value;
 
 for(let i=0;i<vezes;i++){
 
-container.innerHTML+=`<input type="time" class="horario">`;
+container.innerHTML+=`<input type="time" class="horario" id="horarioDose${i+1}" aria-label="Horário ${i+1} de administração" required aria-required="true">`;
 
 }
+
+atualizarProgressaoFormulario();
 
 }
 
@@ -828,25 +1062,7 @@ gerarHorarios();
 
 /* SCANNER */
 
-function iniciarScanner(){
-
-document.getElementById("scanner").style.display="block";
-
-Quagga.init({
-
-inputStream:{type:"LiveStream",target:"#scanner",constraints:{facingMode:"environment"}},
-
-decoder:{readers:["ean_reader","code_128_reader"]}
-
-},function(err){
-
-if(err){console.log(err);return;}
-
-Quagga.start();
-
-});
-
-Quagga.onDetected(function(data){
+function aoDetectarCodigoBarras(data){
 
 document.getElementById("codigoBarras").value=data.codeResult.code;
 
@@ -854,7 +1070,63 @@ Quagga.stop();
 
 document.getElementById("scanner").style.display="none";
 
+atualizarProgressaoFormulario();
+
+}
+
+function iniciarScanner(){
+
+if(typeof Quagga==="undefined"){
+
+alert("Não foi possível carregar o leitor de código de barras. Verifique sua conexão com a internet e tente novamente.");
+
+return;
+
+}
+
+if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+
+alert("Este navegador não tem suporte a acesso à câmera, ou a página não está sendo aberta em um endereço seguro (https ou localhost).");
+
+return;
+
+}
+
+let scannerDiv=document.getElementById("scanner");
+
+scannerDiv.style.display="block";
+
+try{ Quagga.stop(); }catch(erroAoParar){ /* nenhuma instância anterior rodando */ }
+
+Quagga.init({
+
+inputStream:{type:"LiveStream",target:"#scanner",constraints:{facingMode:"environment",width:{min:320},height:{min:240}}},
+
+decoder:{readers:["ean_reader","code_128_reader"]},
+
+locate:true
+
+},function(err){
+
+if(err){
+
+console.log(err);
+
+alert("Não foi possível acessar a câmera. Verifique se a permissão de câmera foi concedida a este site nas configurações do navegador.");
+
+scannerDiv.style.display="none";
+
+return;
+
+}
+
+Quagga.start();
+
 });
+
+Quagga.offDetected(aoDetectarCodigoBarras);
+
+Quagga.onDetected(aoDetectarCodigoBarras);
 
 }
 
@@ -963,6 +1235,34 @@ foto: document.getElementById("foto").files[0]
 
 }
 
+/* Validação do medicamento em relação à lista cadastrada */
+
+function medicamentoEstaNaLista(nome){
+
+if(!nome) return false;
+
+let alvo=nome.trim().toLowerCase();
+
+return listaMedicamentos.some(m=>m.trim().toLowerCase()===alvo);
+
+}
+
+function sincronizarListaMedicamento(nome){
+
+if(!nome) return;
+
+if(!medicamentoEstaNaLista(nome)){
+
+listaMedicamentos.push(nome.trim());
+
+localStorage.setItem("listaMedicamentos",JSON.stringify(listaMedicamentos));
+
+atualizarListaMedicamentos();
+
+}
+
+}
+
 function gerarChecklistSeguranca(dados){
 
 let checklist=[];
@@ -996,6 +1296,16 @@ temErro=true;
 }else{
 
 checklist.push({status:"ok",texto:"Medicamento informado: "+dados.medicamento});
+
+if(medicamentoEstaNaLista(dados.medicamento)){
+
+checklist.push({status:"ok",texto:"Medicamento confere com a lista cadastrada."});
+
+}else{
+
+checklist.push({status:"alerta",texto:"Medicamento não encontrado na lista cadastrada; será adicionado automaticamente ao confirmar."});
+
+}
 
 }
 
@@ -1109,29 +1419,35 @@ let icone= i.status==="ok" ? "✅" : (i.status==="alerta" ? "⚠️" : "❌");
 
 let classe= i.status==="ok" ? "item-ok" : (i.status==="alerta" ? "item-alerta" : "item-erro");
 
-return `<li class="${classe}"><span class="marca">${icone}</span><span>${i.texto}</span></li>`;
+return `<li class="${classe}"><span class="marca" aria-hidden="true">${icone}</span><span>${escaparHTML(i.texto)}</span></li>`;
 
 }).join("");
+
+overlay.setAttribute("role","dialog");
+
+overlay.setAttribute("aria-modal","true");
+
+overlay.setAttribute("aria-labelledby","tituloModalChecklist");
 
 overlay.innerHTML=`
 
 <div class="modal-checklist">
 
-<h2>🔎 Conferência do Medicamento</h2>
+<h2 id="tituloModalChecklist">🔎 Conferência do Medicamento</h2>
 
 <div class="subtitulo">Revise as informações abaixo antes de salvar. Seus dados continuam salvos apenas neste dispositivo.</div>
 
 <div class="resumo-dados">
 
-<div>👤 <strong>Paciente:</strong> ${dados.paciente}</div>
+<div>👤 <strong>Paciente:</strong> ${escaparHTML(dados.paciente)}</div>
 
-<div>💊 <strong>Medicamento:</strong> ${dados.medicamento}</div>
+<div>💊 <strong>Medicamento:</strong> ${escaparHTML(dados.medicamento)}</div>
 
-<div>🔢 <strong>Quantidade:</strong> ${dados.quantidade}</div>
+<div>🔢 <strong>Quantidade:</strong> ${escaparHTML(dados.quantidade)}</div>
 
-<div>⏰ <strong>Horários:</strong> ${dados.horarios.join(", ")}</div>
+<div>⏰ <strong>Horários:</strong> ${escaparHTML(dados.horarios.join(", "))}</div>
 
-<div>📦 <strong>Código de Barras:</strong> ${dados.codigo || "não informado"}</div>
+<div>📦 <strong>Código de barras:</strong> ${dados.codigo ? escaparHTML(dados.codigo) : "não informado"}</div>
 
 </div>
 
@@ -1169,6 +1485,8 @@ document.getElementById("btnConfirmarSalvar").disabled=!this.checked;
 
 });
 
+document.getElementById("checkConfirmacaoSalvar").focus();
+
 }
 
 function fecharModalChecklist(){
@@ -1182,6 +1500,10 @@ if(overlay) overlay.remove();
 function confirmarSalvamento(){
 
 fecharModalChecklist();
+
+let nomeMedicamento=document.getElementById("medicamento").value || document.getElementById("novoMedicamento").value;
+
+sincronizarListaMedicamento(nomeMedicamento);
 
 salvarMedicamento();
 
@@ -1199,19 +1521,19 @@ medicamentos.forEach((med,index)=>{
 
 galeria.innerHTML+=`
 
-<div class="card">
+<div class="card" role="listitem">
 
-${med.foto?`<img src="${med.foto}">`:""}
+${med.foto?`<img src="${med.foto}" alt="Foto do medicamento ${escaparHTML(med.medicamento)}">`:""}
 
-<div class="nome-med">${med.medicamento}</div>
+<div class="nome-med">${escaparHTML(med.medicamento)}</div>
 
-<div>👤 ${med.paciente}</div>
+<div>👤 ${escaparHTML(med.paciente)}</div>
 
-<div>💊 ${med.quantidade}</div>
+<div>💊 ${escaparHTML(med.quantidade)}</div>
 
-<div>📦 ${med.codigoBarras||"-"}</div>
+<div>📦 ${med.codigoBarras?escaparHTML(med.codigoBarras):"-"}</div>
 
-<button class="btn-excluir" onclick="excluirMedicamento(${index})">Excluir</button>
+<button class="btn-excluir" onclick="excluirMedicamento(${index})" aria-label="Excluir ${escaparHTML(med.medicamento)}">Excluir</button>
 
 </div>
 
@@ -1239,11 +1561,11 @@ medicamentos.forEach(med=>{
 
 painel.innerHTML+=`
 
-<div class="miniatura">
+<div class="miniatura" role="listitem">
 
-${med.foto?`<img src="${med.foto}">`:""}
+${med.foto?`<img src="${med.foto}" alt="Foto de ${escaparHTML(med.medicamento)}">`:""}
 
-<span>${med.medicamento}</span>
+<span>${escaparHTML(med.medicamento)}</span>
 
 </div>
 
@@ -1303,6 +1625,8 @@ document.getElementById("quantidade").value="";
 document.getElementById("codigoBarras").value="";
 
 document.getElementById("foto").value="";
+
+reiniciarProgressaoFormulario();
 
 }
 
@@ -1386,10 +1710,14 @@ let div=document.createElement("div");
 
 div.className="alerta-med";
 
+div.setAttribute("role","alertdialog");
+
+div.setAttribute("aria-live","assertive");
+
 div.innerHTML=`
 💊 Hora do medicamento:<br>
-<strong>${med.medicamento}</strong><br>
-Quantidade: ${med.quantidade}
+<strong>${escaparHTML(med.medicamento)}</strong><br>
+Quantidade: ${escaparHTML(med.quantidade)}
 <br><br>
 <button class="botao-concluir" onclick="confirmarDose(${index})">
 ✔ Medicação feita
@@ -1425,19 +1753,242 @@ function mostrarTela(nome){
 
 document.querySelectorAll(".tela").forEach(t=>t.classList.remove("tela-ativa"));
 
-document.querySelectorAll(".nav-botao").forEach(b=>b.classList.remove("ativo"));
+document.querySelectorAll(".nav-botao").forEach(b=>{
+
+b.classList.remove("ativo");
+
+b.setAttribute("aria-selected","false");
+
+});
 
 let tela=document.getElementById("tela-"+nome);
 
 let botao=document.getElementById("navBtn-"+nome);
 
-if(tela) tela.classList.add("tela-ativa");
+if(tela){
 
-if(botao) botao.classList.add("ativo");
+tela.classList.add("tela-ativa");
+
+tela.focus({preventScroll:true});
 
 }
 
+if(botao){
+
+botao.classList.add("ativo");
+
+botao.setAttribute("aria-selected","true");
+
+}
+
+if(nome==="cadastro"){
+
+atualizarProgressaoFormulario();
+
+}
+
+}
+
+/* ===================================================== */
+/* CADASTRO SEQUENCIAL - VALIDAÇÃO E DESBLOQUEIO DE ETAPAS */
+/* (camada adicional; não altera a lógica de salvar/checklist) */
+/* ===================================================== */
+
+function atualizarEstadoCampo(elemento,valido){
+
+if(!elemento) return;
+
+if(valido){
+
+elemento.removeAttribute("aria-invalid");
+
+elemento.classList.remove("campo-invalido");
+
+}else{
+
+elemento.setAttribute("aria-invalid","true");
+
+elemento.classList.add("campo-invalido");
+
+}
+
+}
+
+function atualizarDicaMedicamento(){
+
+let dica=document.getElementById("dicaMedicamento");
+
+if(!dica) return;
+
+let selecionado=document.getElementById("medicamento").value;
+
+let novo=document.getElementById("novoMedicamento").value.trim();
+
+if(selecionado){
+
+dica.textContent="Medicamento selecionado da lista cadastrada.";
+
+}else if(novo && !medicamentoEstaNaLista(novo)){
+
+dica.textContent="Este medicamento ainda não está cadastrado. Será adicionado automaticamente ao confirmar, ou clique em \"Adicionar medicamento\".";
+
+}else if(novo && medicamentoEstaNaLista(novo)){
+
+dica.textContent="Este medicamento já está na lista cadastrada.";
+
+}else{
+
+dica.textContent="";
+
+}
+
+}
+
+function atualizarProgressaoFormulario(){
+
+let grupoPaciente=document.getElementById("grupo-paciente");
+
+let grupoMedicamento=document.getElementById("grupo-medicamento");
+
+let grupoQuantidade=document.getElementById("grupo-quantidade");
+
+let grupoHorario=document.getElementById("grupo-horario");
+
+let grupoCodigo=document.getElementById("grupo-codigo");
+
+let grupoFoto=document.getElementById("grupo-foto");
+
+let btnSalvar=document.getElementById("btnSalvarMedicamento");
+
+let progresso=document.getElementById("progressoFormulario");
+
+if(!grupoPaciente) return;
+
+let campoPaciente=document.getElementById("paciente");
+
+let pacienteOk=campoPaciente.value.trim().length>0;
+
+grupoMedicamento.disabled=!pacienteOk;
+
+let etapaAtual=pacienteOk?2:1;
+
+let medSelect=document.getElementById("medicamento").value;
+
+let medNovo=document.getElementById("novoMedicamento").value.trim();
+
+let medicamentoOk=pacienteOk && (medSelect!=="" || medNovo.length>0);
+
+grupoQuantidade.disabled=!medicamentoOk;
+
+if(medicamentoOk) etapaAtual=3;
+
+atualizarDicaMedicamento();
+
+let campoQuantidade=document.getElementById("quantidade");
+
+let qtdNum=Number(campoQuantidade.value);
+
+let quantidadeOk=medicamentoOk && campoQuantidade.value!=="" && qtdNum>0;
+
+grupoHorario.disabled=!quantidadeOk;
+
+if(quantidadeOk) etapaAtual=4;
+
+let horarios=[...document.querySelectorAll(".horario")];
+
+let horarioOk=quantidadeOk && horarios.length>0 && horarios.every(h=>h.value!=="");
+
+grupoCodigo.disabled=!horarioOk;
+
+if(horarioOk) etapaAtual=5;
+
+let codigoBarras=document.getElementById("codigoBarras");
+
+let etapaCodigoConcluida=horarioOk && (codigoBarras.value.trim().length>0 || grupoCodigo.dataset.concluida==="true");
+
+grupoFoto.disabled=!etapaCodigoConcluida;
+
+if(etapaCodigoConcluida) etapaAtual=6;
+
+btnSalvar.disabled=!horarioOk;
+
+if(progresso){
+
+let textos=[
+
+"Etapa 1 de 6 — Preencha o paciente para começar",
+
+"Etapa 2 de 6 — Escolha ou digite o medicamento",
+
+"Etapa 3 de 6 — Informe a quantidade por dose",
+
+"Etapa 4 de 6 — Defina os horários",
+
+"Etapa 5 de 6 — Código de barras (opcional)",
+
+"Etapa 6 de 6 — Foto (opcional). Você já pode salvar."
+
+];
+
+progresso.textContent=textos[Math.min(etapaAtual,6)-1];
+
+}
+
+}
+
+function pularEtapaCodigoBarras(){
+
+let grupoCodigo=document.getElementById("grupo-codigo");
+
+if(grupoCodigo) grupoCodigo.dataset.concluida="true";
+
+atualizarProgressaoFormulario();
+
+}
+
+function reiniciarProgressaoFormulario(){
+
+let grupoCodigo=document.getElementById("grupo-codigo");
+
+if(grupoCodigo) grupoCodigo.dataset.concluida="false";
+
+atualizarProgressaoFormulario();
+
+}
+
+document.getElementById("paciente").addEventListener("input",atualizarProgressaoFormulario);
+
+document.getElementById("paciente").addEventListener("blur",function(){
+
+atualizarEstadoCampo(this,this.value.trim().length>0);
+
+});
+
+document.getElementById("medicamento").addEventListener("change",atualizarProgressaoFormulario);
+
+document.getElementById("novoMedicamento").addEventListener("input",atualizarProgressaoFormulario);
+
+document.getElementById("quantidade").addEventListener("input",atualizarProgressaoFormulario);
+
+document.getElementById("quantidade").addEventListener("blur",function(){
+
+let v=Number(this.value);
+
+atualizarEstadoCampo(this,this.value!=="" && v>0);
+
+});
+
+document.getElementById("periodo").addEventListener("change",atualizarProgressaoFormulario);
+
+document.getElementById("horariosContainer").addEventListener("input",atualizarProgressaoFormulario);
+
+document.getElementById("codigoBarras").addEventListener("input",atualizarProgressaoFormulario);
+
+document.getElementById("foto").addEventListener("change",atualizarProgressaoFormulario);
+
 mostrarTela("meus-remedios");
+
+atualizarProgressaoFormulario();
 
 </script>
 
