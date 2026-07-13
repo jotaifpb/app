@@ -618,6 +618,37 @@ display:inline-block;
 margin:4px 0;
 }
 
+.alerta-med label{
+display:block;
+color:#fff;
+font-size:14px;
+font-weight:700;
+margin-top:14px;
+text-align:center;
+}
+
+.alerta-med input{
+max-width:220px;
+margin:8px auto 0;
+text-align:center;
+font-size:20px;
+letter-spacing:4px;
+background:#fff;
+color:var(--texto);
+}
+
+.erro-codigo{
+min-height:18px;
+font-size:13px;
+font-weight:700;
+color:#fff5f5;
+background:rgba(0,0,0,0.22);
+border-radius:8px;
+padding:6px 10px;
+margin:8px auto 0;
+max-width:280px;
+}
+
 /* ===== MODAL DE CONFERÊNCIA / CHECKLIST ===== */
 
 .overlay-checklist{
@@ -800,7 +831,7 @@ header .selo-seguranca{font-size:11.5px;}
 <!-- ===== TELA: CADASTRAR ===== -->
 <section class="tela" id="tela-cadastro" role="tabpanel" aria-labelledby="navBtn-cadastro tituloCadastro" tabindex="0">
 
-<h3 class="secao-titulo" id="tituloCadastro">💊 Cadastrar Medicamentos</h3>
+<h3 class="secao-titulo" id="tituloCadastro">💊 Cadastrar Medicamento</h3>
 
 <p class="progresso-formulario" id="progressoFormulario" aria-live="polite" role="status">Etapa 1 de 6 — Preencha o paciente para começar</p>
 
@@ -948,6 +979,32 @@ const mapa={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};
 return mapa[c];
 
 });
+
+}
+
+/* Gera um código numérico único por medicamento, exigido na hora da dose por segurança */
+
+function gerarCodigoSeguranca(){
+
+return String(Math.floor(1000 + Math.random()*9000));
+
+}
+
+/* Calcula o próximo horário de dose do dia, para avisar na notificação quando há mais de uma dose */
+
+function obterProximoHorario(horarios,horarioAtual){
+
+if(!horarios || horarios.length<=1) return null;
+
+let ordenados=[...horarios].sort();
+
+let posicao=ordenados.indexOf(horarioAtual);
+
+if(posicao===-1) return ordenados[0];
+
+if(posicao<ordenados.length-1) return ordenados[posicao+1];
+
+return ordenados[0];
 
 }
 
@@ -1159,6 +1216,8 @@ return;
 
 let salvar=(img)=>{
 
+let codigoConfirmacao=gerarCodigoSeguranca();
+
 medicamentos.push({
 
 paciente,
@@ -1179,7 +1238,9 @@ periodo,
 
 dataInicio:Date.now(),
 
-ultimoReset:Date.now()
+ultimoReset:Date.now(),
+
+codigoConfirmacao
 
 });
 
@@ -1190,6 +1251,8 @@ atualizarGaleria();
 atualizarPainelMiniaturas();
 
 limparCampos();
+
+alert("Medicamento salvo!\n\n🔑 Código de confirmação: "+codigoConfirmacao+"\n\nEste código será solicitado por segurança na hora de cada dose de \""+medicamento+"\". Anote ou guarde em local seguro.");
 
 };
 
@@ -1534,6 +1597,8 @@ ${med.foto?`<img src="${med.foto}" alt="Foto do medicamento ${escaparHTML(med.me
 
 <div>📦 ${med.codigoBarras?escaparHTML(med.codigoBarras):"-"}</div>
 
+<div>🔑 Código de confirmação: <strong>${med.codigoConfirmacao?escaparHTML(med.codigoConfirmacao):"-"}</strong></div>
+
 <button class="btn-excluir" onclick="excluirMedicamento(${index})" aria-label="Excluir ${escaparHTML(med.medicamento)}">Excluir</button>
 
 </div>
@@ -1645,7 +1710,7 @@ if(h===agora){
 
 destacarMedicamento(index);
 
-dispararAlerta(med,index);
+dispararAlerta(med,index,h);
 
 }
 
@@ -1657,9 +1722,11 @@ dispararAlerta(med,index);
 
 setInterval(verificarHorario,30000);
 
-function dispararAlerta(med,index){
+function dispararAlerta(med,index,horarioAtual){
 
 let som=document.getElementById("alarmeSom");
+
+let proximoHorario=obterProximoHorario(med.horarios,horarioAtual);
 
 let contador=0;
 
@@ -1676,12 +1743,18 @@ som.play();
 
 }else{
 
-let fala=new SpeechSynthesisUtterance(
-"Atenção. Hora de tomar " +
+let textoFala="Atenção. Hora de tomar " +
 med.quantidade +
 " comprimido de " +
-med.medicamento
-);
+med.medicamento;
+
+if(proximoHorario){
+
+textoFala += ". Próxima dose às " + proximoHorario.replace(":"," e ");
+
+}
+
+let fala=new SpeechSynthesisUtterance(textoFala);
 
 fala.lang="pt-BR";
 
@@ -1693,7 +1766,7 @@ contador++;
 
 },7000);
 
-mostrarAlerta(med,index);
+mostrarAlerta(med,index,proximoHorario);
 
 }
 
@@ -1705,7 +1778,7 @@ atualizarGaleria();
 
 atualizarPainelMiniaturas();
 
-function mostrarAlerta(med,index){
+function mostrarAlerta(med,index,proximoHorario){
 
 let div=document.createElement("div");
 
@@ -1715,20 +1788,48 @@ div.setAttribute("role","alertdialog");
 
 div.setAttribute("aria-live","assertive");
 
+let linhaProximaDose = proximoHorario ? `<br>⏭ Próxima dose: <strong>${escaparHTML(proximoHorario)}</strong>` : "";
+
 div.innerHTML=`
 💊 Hora do medicamento:<br>
 <strong>${escaparHTML(med.medicamento)}</strong><br>
 Quantidade: ${escaparHTML(med.quantidade)}
+${linhaProximaDose}
 <br><br>
+<label for="codigoConfirmacaoDose">🔑 Digite o código de confirmação deste medicamento</label>
+<input type="text" id="codigoConfirmacaoDose" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Código de segurança" aria-describedby="erroCodigoDose">
+<div id="erroCodigoDose" class="erro-codigo" role="alert" aria-live="assertive"></div>
 <button class="botao-concluir" onclick="confirmarDose(${index})">
-✔ Medicação feita
+✔ Confirmar com código
 </button>
 `;
 
 document.body.appendChild(div);
 
+let campoCodigo=document.getElementById("codigoConfirmacaoDose");
+
+if(campoCodigo) campoCodigo.focus();
+
 }
 function confirmarDose(index){
+
+let campoCodigo=document.getElementById("codigoConfirmacaoDose");
+
+let erroDiv=document.getElementById("erroCodigoDose");
+
+let medicamento=medicamentos[index];
+
+let codigoDigitado=campoCodigo?campoCodigo.value.trim():"";
+
+if(!medicamento || !medicamento.codigoConfirmacao || codigoDigitado!==medicamento.codigoConfirmacao){
+
+if(erroDiv) erroDiv.textContent="Código incorreto. Verifique o código de confirmação deste medicamento e tente novamente.";
+
+if(campoCodigo){ campoCodigo.classList.add("campo-invalido"); campoCodigo.focus(); }
+
+return;
+
+}
 
 let alerta=document.querySelector(".alerta-med");
 
