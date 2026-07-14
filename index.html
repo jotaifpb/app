@@ -400,6 +400,24 @@ margin-top:10px;
 border-radius:10px;
 }
 
+.btn-editar{
+background:linear-gradient(135deg,#4dabf7,var(--cor1));
+box-shadow:0 6px 14px rgba(29,86,166,0.35);
+width:auto;
+padding:9px 16px;
+font-size:13px;
+margin-top:10px;
+margin-right:8px;
+border-radius:10px;
+}
+
+.linha-acoes-card{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:0;
+}
+
 .botao-concluir{
 background:linear-gradient(135deg,#ffb84d,var(--laranja));
 font-size:19px;
@@ -430,9 +448,33 @@ box-shadow:none;
 transform:none;
 }
 
+.btn-cancelar-edicao{
+background:#e9edf5;
+color:var(--texto);
+box-shadow:none;
+}
+
+.btn-cancelar-edicao:hover{
+transform:none;
+filter:brightness(0.97);
+box-shadow:none;
+}
+
 .btn-salvar-principal{
 font-size:17px;
 padding:16px;
+}
+
+.aviso-edicao{
+background:linear-gradient(135deg,#fff3d6,#ffe6ad);
+border:1.5px solid var(--laranja);
+color:#8a5300;
+border-radius:12px;
+padding:10px 14px;
+font-size:13px;
+font-weight:700;
+margin-bottom:14px;
+text-align:center;
 }
 
 #scanner{
@@ -610,6 +652,8 @@ z-index:9999;
 box-shadow:0 -8px 30px rgba(0,0,0,0.4);
 border-top:4px solid #ffb84d;
 line-height:1.4;
+max-height:92vh;
+overflow-y:auto;
 }
 
 .alerta-med strong{
@@ -635,6 +679,45 @@ font-size:20px;
 letter-spacing:4px;
 background:#fff;
 color:var(--texto);
+}
+
+/* FOCO NA FOTO DO MEDICAMENTO DENTRO DO ALERTA */
+
+.alerta-imagem-wrap{
+display:flex;
+justify-content:center;
+margin:6px 0 14px;
+}
+
+.alerta-imagem-med{
+width:min(72vw,240px);
+aspect-ratio:1/1;
+object-fit:cover;
+border-radius:20px;
+border:4px solid #fff;
+box-shadow:0 0 0 5px rgba(255,184,77,0.85), 0 12px 30px rgba(0,0,0,0.45);
+animation:realceFoto 1.1s infinite alternate;
+}
+
+@keyframes realceFoto{
+from{box-shadow:0 0 0 5px rgba(255,184,77,0.85), 0 12px 30px rgba(0,0,0,0.45);}
+to{box-shadow:0 0 0 9px rgba(255,184,77,1), 0 16px 40px rgba(0,0,0,0.55);}
+}
+
+.alerta-sem-foto{
+width:min(72vw,220px);
+aspect-ratio:1/1;
+border-radius:20px;
+border:3px dashed rgba(255,255,255,0.7);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:14px;
+color:#fff;
+margin:6px auto 14px;
+background:rgba(255,255,255,0.08);
+padding:10px;
+text-align:center;
 }
 
 .erro-codigo{
@@ -822,7 +905,7 @@ header .selo-seguranca{font-size:11.5px;}
 <h1 class="titulo-app">💊 Controle Inteligente de Medicamentos</h1>
 <p class="selo-seguranca" role="note" aria-label="Aviso de privacidade dos dados">
 <span class="icone-cadeado" aria-hidden="true">🔒</span>
-<span>Todos os medicamentos e fotos ficam salvos <strong>somente neste dispositivo</strong> (armazenamento local do navegador). Nenhuma informação é enviada para a internet ou para servidores externos.</span>
+<span>Todos os medicamentos e fotos ficam salvos <strong>somente neste dispositivo</strong> (armazenamento local do navegador). Nenhuma informação é enviada para a internet ou para servidores externos, exceto o código de confirmação, que é enviado por você mesmo via WhatsApp para o número que você cadastrar.</span>
 </p>
 </header>
 
@@ -833,20 +916,17 @@ header .selo-seguranca{font-size:11.5px;}
 
 <h3 class="secao-titulo" id="tituloCadastro">💊 Cadastrar Medicamento</h3>
 
-<p class="progresso-formulario" id="progressoFormulario" aria-live="polite" role="status">Etapa 1 de 6 — Preencha o paciente para começar</p>
+<p class="progresso-formulario" id="progressoFormulario" aria-live="polite" role="status">Etapa 1 de 3 — Preencha os dados principais</p>
+
+<div class="aviso-edicao" id="avisoEdicao" style="display:none;" role="status" aria-live="polite"></div>
 
 <form autocomplete="off">
 
-<fieldset class="grupo-campo" id="grupo-paciente">
-<legend>1. Paciente</legend>
+<fieldset class="grupo-campo" id="grupo-principal">
+<legend>1. Dados principais</legend>
 
 <label for="paciente">👤 Nome do paciente <span class="marca-obrigatorio" aria-hidden="true">*</span></label>
 <input type="text" id="paciente" required aria-required="true" maxlength="80" autocomplete="name" placeholder="Digite o nome completo">
-
-</fieldset>
-
-<fieldset class="grupo-campo" id="grupo-medicamento" disabled>
-<legend>2. Medicamento (dose)</legend>
 
 <label for="medicamento">💊 Medicamento cadastrado</label>
 <select id="medicamento">
@@ -857,22 +937,22 @@ header .selo-seguranca{font-size:11.5px;}
 <input type="text" id="novoMedicamento" placeholder="Adicionar novo medicamento" maxlength="80">
 <div class="dica-campo" id="dicaMedicamento" aria-live="polite"></div>
 
-<button type="button" onclick="adicionarMedicamentoLista()">➕ Adicionar medicamento</button>
-
-<button type="button" class="btn-excluir" onclick="removerMedicamentoLista()">🗑️ Remover medicamento</button>
-
-</fieldset>
-
-<fieldset class="grupo-campo" id="grupo-quantidade" disabled>
-<legend>3. Quantidade</legend>
+<div class="linha-acoes-card">
+<button type="button" class="btn-editar" onclick="adicionarMedicamentoLista()">➕ Adicionar à lista</button>
+<button type="button" class="btn-excluir" onclick="removerMedicamentoLista()">🗑️ Remover da lista</button>
+</div>
 
 <label for="quantidade">🔢 Quantidade por dose <span class="marca-obrigatorio" aria-hidden="true">*</span></label>
 <input type="number" id="quantidade" required aria-required="true" min="1" max="20" step="1" inputmode="numeric" placeholder="Ex.: 1">
 
+<label for="whatsappNumero">📱 WhatsApp para receber o código <span class="etapa-opcional">(opcional)</span></label>
+<input type="tel" id="whatsappNumero" inputmode="tel" maxlength="20" placeholder="Ex.: 5583999998888 (DDI+DDD+número)">
+<div class="dica-campo" id="dicaWhatsapp">Se preenchido, o código de confirmação de cada medicamento será enviado a este número pelo WhatsApp.</div>
+
 </fieldset>
 
 <fieldset class="grupo-campo" id="grupo-horario" disabled>
-<legend>4. Horário</legend>
+<legend>2. Horário</legend>
 
 <label for="vezes">⏰ Quantas vezes ao dia?</label>
 <select id="vezes">
@@ -893,8 +973,8 @@ header .selo-seguranca{font-size:11.5px;}
 
 </fieldset>
 
-<fieldset class="grupo-campo" id="grupo-codigo" disabled data-concluida="false">
-<legend>5. Código de barras <span class="etapa-opcional">(opcional)</span></legend>
+<fieldset class="grupo-campo" id="grupo-extras" disabled>
+<legend>3. Código de barras e foto <span class="etapa-opcional">(opcional)</span></legend>
 
 <label for="codigoBarras">📦 Código de barras</label>
 <input type="text" id="codigoBarras" readonly maxlength="14" aria-describedby="dicaCodigo">
@@ -904,20 +984,18 @@ header .selo-seguranca{font-size:11.5px;}
 
 <div id="scanner" role="region" aria-label="Câmera do leitor de código de barras"></div>
 
-<button type="button" class="btn-pular" onclick="pularEtapaCodigoBarras()">Pular esta etapa (opcional)</button>
-
-</fieldset>
-
-<fieldset class="grupo-campo" id="grupo-foto" disabled>
-<legend>6. Foto <span class="etapa-opcional">(opcional)</span></legend>
+<button type="button" class="btn-pular" onclick="pularEtapaCodigoBarras()">Pular código de barras</button>
 
 <label for="foto">📷 Foto</label>
 <input type="file" accept="image/*" capture="environment" id="foto" aria-describedby="dicaFoto">
-<div class="dica-campo" id="dicaFoto">Ajuda a identificar o medicamento com segurança.</div>
+<div class="dica-campo" id="dicaFoto">Ajuda a identificar o medicamento com segurança, especialmente no alerta de horário.</div>
 
 </fieldset>
 
+<div class="linha-acoes-card">
 <button type="button" class="btn-salvar-principal" id="btnSalvarMedicamento" onclick="verificarEConfirmar()" disabled>💾 Salvar Medicamento</button>
+</div>
+<button type="button" class="btn-cancelar-edicao" id="btnCancelarEdicao" style="display:none;" onclick="cancelarEdicao()">✖ Cancelar edição</button>
 
 </form>
 
@@ -1036,6 +1114,28 @@ let medicamentos = lerArmazenamentoSeguro("medicamentos");
 
 let listaMedicamentos = lerArmazenamentoSeguro("listaMedicamentos");
 
+/* Índice em edição (null = cadastro novo, número = editando medicamentos[índice]) */
+
+let indiceEmEdicao = null;
+
+/* Número de WhatsApp cadastrado, lembrado entre cadastros */
+
+function carregarWhatsappSalvo(){
+
+try{
+
+let numero=localStorage.getItem("whatsappNumero");
+
+if(numero) document.getElementById("whatsappNumero").value=numero;
+
+}catch(erro){
+
+console.error("Não foi possível carregar o WhatsApp salvo.",erro);
+
+}
+
+}
+
 /* LISTA */
 
 function atualizarListaMedicamentos(){
@@ -1098,7 +1198,7 @@ atualizarProgressaoFormulario();
 
 document.getElementById("vezes").addEventListener("change",gerarHorarios)
 
-function gerarHorarios(){
+function gerarHorarios(valoresExistentes){
 
 let container=document.getElementById("horariosContainer");
 
@@ -1108,7 +1208,9 @@ let vezes=document.getElementById("vezes").value;
 
 for(let i=0;i<vezes;i++){
 
-container.innerHTML+=`<input type="time" class="horario" id="horarioDose${i+1}" aria-label="Horário ${i+1} de administração" required aria-required="true">`;
+let valor= (Array.isArray(valoresExistentes) && valoresExistentes[i]) ? ` value="${escaparHTML(valoresExistentes[i])}"` : "";
+
+container.innerHTML+=`<input type="time" class="horario" id="horarioDose${i+1}" aria-label="Horário ${i+1} de administração" required aria-required="true"${valor}>`;
 
 }
 
@@ -1188,6 +1290,37 @@ Quagga.onDetected(aoDetectarCodigoBarras);
 
 }
 
+/* ===================================================== */
+/* ENVIO DO CÓDIGO DE CONFIRMAÇÃO PELO WHATSAPP           */
+/* Não há backend nesta aplicação, então o envio é feito  */
+/* abrindo uma conversa do WhatsApp já com a mensagem      */
+/* pronta (link "wa.me"); é preciso apenas tocar em enviar.*/
+/* ===================================================== */
+
+function normalizarNumeroWhatsapp(numero){
+
+if(!numero) return "";
+
+return numero.replace(/\D/g,"");
+
+}
+
+function enviarCodigoPorWhatsapp(numero,medicamento,codigo){
+
+let numeroLimpo=normalizarNumeroWhatsapp(numero);
+
+if(!numeroLimpo) return false;
+
+let texto="🔑 Código de confirmação do medicamento *"+medicamento+"*: "+codigo+"\n\nGuarde este código: ele será solicitado na hora de cada dose deste medicamento no app Controle de Medicamentos.";
+
+let link="https://wa.me/"+numeroLimpo+"?text="+encodeURIComponent(texto);
+
+window.open(link,"_blank");
+
+return true;
+
+}
+
 /* SALVAR */
 
 function salvarMedicamento(){
@@ -1206,6 +1339,8 @@ let horarios=[...document.querySelectorAll(".horario")].map(h=>h.value);
 
 let foto=document.getElementById("foto").files[0];
 
+let whatsappNumero=document.getElementById("whatsappNumero").value.trim();
+
 if(!paciente||!medicamento||!quantidade||horarios.includes("")){
 
 alert("Preencha todos os campos");
@@ -1214,11 +1349,21 @@ return;
 
 }
 
+if(whatsappNumero){
+
+try{ localStorage.setItem("whatsappNumero",whatsappNumero); }catch(erro){ console.error("Não foi possível salvar o número de WhatsApp.",erro); }
+
+}
+
 let salvar=(img)=>{
 
-let codigoConfirmacao=gerarCodigoSeguranca();
+let editando = indiceEmEdicao!==null && medicamentos[indiceEmEdicao];
 
-medicamentos.push({
+let codigoConfirmacao = editando ? medicamentos[indiceEmEdicao].codigoConfirmacao : gerarCodigoSeguranca();
+
+let fotoFinal = img!==undefined ? img : (editando ? medicamentos[indiceEmEdicao].foto : null);
+
+let registro={
 
 paciente,
 
@@ -1230,19 +1375,29 @@ codigoBarras:codigo,
 
 horarios,
 
-dosesTomadas:[],
+dosesTomadas: editando ? medicamentos[indiceEmEdicao].dosesTomadas : [],
 
-foto:img,
+foto:fotoFinal,
 
 periodo,
 
-dataInicio:Date.now(),
+dataInicio: editando ? medicamentos[indiceEmEdicao].dataInicio : Date.now(),
 
-ultimoReset:Date.now(),
+ultimoReset: editando ? medicamentos[indiceEmEdicao].ultimoReset : Date.now(),
 
 codigoConfirmacao
 
-});
+};
+
+if(editando){
+
+medicamentos[indiceEmEdicao]=registro;
+
+}else{
+
+medicamentos.push(registro);
+
+}
 
 localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
 
@@ -1250,9 +1405,19 @@ atualizarGaleria();
 
 atualizarPainelMiniaturas();
 
+let enviado=false;
+
+if(!editando){
+
+enviado=enviarCodigoPorWhatsapp(whatsappNumero,medicamento,codigoConfirmacao);
+
+}
+
 limparCampos();
 
-alert("Medicamento salvo!\n\n🔑 Código de confirmação: "+codigoConfirmacao+"\n\nEste código será solicitado por segurança na hora de cada dose de \""+medicamento+"\". Anote ou guarde em local seguro.");
+let msgFinal = editando ? "Medicamento atualizado!" : "Medicamento salvo!\n\n🔑 Código de confirmação: "+codigoConfirmacao+"\n\nEste código será solicitado por segurança na hora de cada dose de \""+medicamento+"\". Anote ou guarde em local seguro."+(enviado?"\n\n📱 Uma conversa do WhatsApp foi aberta com o código pronto para você enviar ao número cadastrado.":"");
+
+alert(msgFinal);
 
 };
 
@@ -1263,6 +1428,12 @@ let reader=new FileReader();
 reader.onload=e=>salvar(e.target.result);
 
 reader.readAsDataURL(foto);
+
+}else if(indiceEmEdicao!==null){
+
+/* Em edição, sem novo arquivo escolhido: mantém a foto já existente */
+
+salvar(undefined);
 
 }else{
 
@@ -1293,7 +1464,9 @@ periodo: document.getElementById("periodo").value,
 
 horarios: [...document.querySelectorAll(".horario")].map(h=>h.value),
 
-foto: document.getElementById("foto").files[0]
+foto: document.getElementById("foto").files[0],
+
+whatsappNumero: document.getElementById("whatsappNumero").value.trim()
 
 };
 
@@ -1433,13 +1606,41 @@ checklist.push({status:"alerta",texto:"Nenhum código de barras informado (opcio
 
 }
 
-if(!dados.foto){
+if(!dados.foto && indiceEmEdicao===null){
 
-checklist.push({status:"alerta",texto:"Nenhuma foto anexada. Recomendado para identificar o medicamento com segurança."});
+checklist.push({status:"alerta",texto:"Nenhuma foto anexada. Recomendado para identificar o medicamento com segurança, principalmente no alerta de horário."});
+
+}else if(dados.foto){
+
+checklist.push({status:"ok",texto:"Foto anexada para identificação visual."});
 
 }else{
 
-checklist.push({status:"ok",texto:"Foto anexada para identificação visual."});
+checklist.push({status:"ok",texto:"Foto já cadastrada será mantida."});
+
+}
+
+if(dados.whatsappNumero){
+
+let digitosWhats=normalizarNumeroWhatsapp(dados.whatsappNumero);
+
+if(digitosWhats.length<10){
+
+checklist.push({status:"alerta",texto:"Número de WhatsApp parece incompleto. Use DDI+DDD+número (ex.: 5583999998888)."});
+
+}else if(indiceEmEdicao===null){
+
+checklist.push({status:"ok",texto:"O código de confirmação será enviado ao WhatsApp "+dados.whatsappNumero+"."});
+
+}else{
+
+checklist.push({status:"ok",texto:"WhatsApp cadastrado: "+dados.whatsappNumero+" (reenvio manual pela biblioteca, se necessário)."});
+
+}
+
+}else{
+
+checklist.push({status:"alerta",texto:"Nenhum WhatsApp informado. O código de confirmação não será enviado automaticamente."});
 
 }
 
@@ -1493,11 +1694,15 @@ overlay.setAttribute("aria-modal","true");
 
 overlay.setAttribute("aria-labelledby","tituloModalChecklist");
 
+let tituloModal = indiceEmEdicao!==null ? "🔎 Conferência da Atualização" : "🔎 Conferência do Medicamento";
+
+let textoBotaoConfirmar = indiceEmEdicao!==null ? "✔ Confirmar e Atualizar" : "✔ Confirmar e Salvar";
+
 overlay.innerHTML=`
 
 <div class="modal-checklist">
 
-<h2 id="tituloModalChecklist">🔎 Conferência do Medicamento</h2>
+<h2 id="tituloModalChecklist">${tituloModal}</h2>
 
 <div class="subtitulo">Revise as informações abaixo antes de salvar. Seus dados continuam salvos apenas neste dispositivo.</div>
 
@@ -1512,6 +1717,8 @@ overlay.innerHTML=`
 <div>⏰ <strong>Horários:</strong> ${escaparHTML(dados.horarios.join(", "))}</div>
 
 <div>📦 <strong>Código de barras:</strong> ${dados.codigo ? escaparHTML(dados.codigo) : "não informado"}</div>
+
+<div>📱 <strong>WhatsApp:</strong> ${dados.whatsappNumero ? escaparHTML(dados.whatsappNumero) : "não informado"}</div>
 
 </div>
 
@@ -1533,7 +1740,7 @@ ${itensHtml}
 
 <button type="button" class="btn-cancelar-checklist" onclick="fecharModalChecklist()">Cancelar</button>
 
-<button type="button" class="btn-confirmar-checklist" id="btnConfirmarSalvar" disabled onclick="confirmarSalvamento()">✔ Confirmar e Salvar</button>
+<button type="button" class="btn-confirmar-checklist" id="btnConfirmarSalvar" disabled onclick="confirmarSalvamento()">${textoBotaoConfirmar}</button>
 
 </div>
 
@@ -1581,6 +1788,14 @@ let galeria=document.getElementById("galeriaUnica");
 
 galeria.innerHTML="";
 
+if(!medicamentos.length){
+
+galeria.innerHTML='<div class="vazio">Nenhum medicamento cadastrado ainda.</div>';
+
+return;
+
+}
+
 medicamentos.forEach((med,index)=>{
 
 galeria.innerHTML+=`
@@ -1595,11 +1810,19 @@ ${med.foto?`<img src="${med.foto}" alt="Foto do medicamento ${escaparHTML(med.me
 
 <div>💊 ${escaparHTML(med.quantidade)}</div>
 
+<div>⏰ ${escaparHTML((med.horarios||[]).join(", "))}</div>
+
 <div>📦 ${med.codigoBarras?escaparHTML(med.codigoBarras):"-"}</div>
 
 <div>🔑 Código de confirmação: <strong>${med.codigoConfirmacao?escaparHTML(med.codigoConfirmacao):"-"}</strong></div>
 
-<button class="btn-excluir" onclick="excluirMedicamento(${index})" aria-label="Excluir ${escaparHTML(med.medicamento)}">Excluir</button>
+<div class="linha-acoes-card">
+
+<button type="button" class="btn-editar" onclick="editarMedicamento(${index})" aria-label="Editar ${escaparHTML(med.medicamento)}">✏️ Editar</button>
+
+<button type="button" class="btn-excluir" onclick="excluirMedicamento(${index})" aria-label="Excluir ${escaparHTML(med.medicamento)}">🗑️ Excluir</button>
+
+</div>
 
 </div>
 
@@ -1616,6 +1839,16 @@ function atualizarPainelMiniaturas(){
 let painel=document.getElementById("painelMiniaturas");
 
 painel.innerHTML="";
+
+if(!medicamentos.length){
+
+painel.style.gridTemplateColumns="1fr";
+
+painel.innerHTML='<div class="vazio">Nenhum medicamento cadastrado ainda. Toque em "Cadastrar" para começar.</div>';
+
+return;
+
+}
 
 let colunas=Math.ceil(Math.sqrt(medicamentos.length));
 
@@ -1641,13 +1874,95 @@ ${med.foto?`<img src="${med.foto}" alt="Foto de ${escaparHTML(med.medicamento)}"
 
 }
 
-/* EXCLUIR */
+/* EDITAR (parte do CRUD) */
+
+function editarMedicamento(index){
+
+let med=medicamentos[index];
+
+if(!med) return;
+
+indiceEmEdicao=index;
+
+document.getElementById("paciente").value=med.paciente||"";
+
+atualizarListaMedicamentos();
+
+let selectMed=document.getElementById("medicamento");
+
+if(medicamentoEstaNaLista(med.medicamento)){
+
+selectMed.value=med.medicamento;
+
+document.getElementById("novoMedicamento").value="";
+
+}else{
+
+selectMed.value="";
+
+document.getElementById("novoMedicamento").value=med.medicamento||"";
+
+}
+
+document.getElementById("quantidade").value=med.quantidade||"";
+
+document.getElementById("codigoBarras").value=med.codigoBarras||"";
+
+document.getElementById("periodo").value=med.periodo||"7";
+
+document.getElementById("vezes").value=(med.horarios&&med.horarios.length)?String(med.horarios.length):"1";
+
+gerarHorarios(med.horarios||[]);
+
+document.getElementById("foto").value="";
+
+carregarWhatsappSalvo();
+
+let grupoCodigo=document.getElementById("grupo-extras");
+
+if(grupoCodigo) grupoCodigo.dataset.concluida="true";
+
+let aviso=document.getElementById("avisoEdicao");
+
+aviso.style.display="block";
+
+aviso.textContent="✏️ Editando \""+med.medicamento+"\". Ajuste os campos e toque em Atualizar Medicamento.";
+
+document.getElementById("btnSalvarMedicamento").textContent="🔄 Atualizar Medicamento";
+
+document.getElementById("btnCancelarEdicao").style.display="block";
+
+mostrarTela("cadastro");
+
+atualizarProgressaoFormulario();
+
+document.getElementById("paciente").focus();
+
+}
+
+function cancelarEdicao(){
+
+limparCampos();
+
+}
+
+/* EXCLUIR (parte do CRUD) */
 
 function excluirMedicamento(index){
+
+let med=medicamentos[index];
+
+if(med && !confirm("Excluir \""+med.medicamento+"\" de "+med.paciente+"?")) return;
 
 medicamentos.splice(index,1);
 
 localStorage.setItem("medicamentos",JSON.stringify(medicamentos));
+
+if(indiceEmEdicao===index){
+
+limparCampos();
+
+}
 
 atualizarGaleria();
 
@@ -1682,15 +1997,33 @@ block:"center"
 
 function limparCampos(){
 
+indiceEmEdicao=null;
+
 document.getElementById("paciente").value="";
 
 document.getElementById("novoMedicamento").value="";
+
+document.getElementById("medicamento").value="";
 
 document.getElementById("quantidade").value="";
 
 document.getElementById("codigoBarras").value="";
 
 document.getElementById("foto").value="";
+
+document.getElementById("vezes").value="1";
+
+document.getElementById("periodo").value="7";
+
+gerarHorarios();
+
+carregarWhatsappSalvo();
+
+document.getElementById("avisoEdicao").style.display="none";
+
+document.getElementById("btnSalvarMedicamento").textContent="💾 Salvar Medicamento";
+
+document.getElementById("btnCancelarEdicao").style.display="none";
 
 reiniciarProgressaoFormulario();
 
@@ -1778,6 +2111,8 @@ atualizarGaleria();
 
 atualizarPainelMiniaturas();
 
+carregarWhatsappSalvo();
+
 function mostrarAlerta(med,index,proximoHorario){
 
 let div=document.createElement("div");
@@ -1790,12 +2125,18 @@ div.setAttribute("aria-live","assertive");
 
 let linhaProximaDose = proximoHorario ? `<br>⏭ Próxima dose: <strong>${escaparHTML(proximoHorario)}</strong>` : "";
 
+let blocoFoto = med.foto
+
+? `<div class="alerta-imagem-wrap"><img src="${med.foto}" alt="Foto do medicamento ${escaparHTML(med.medicamento)} para conferência" class="alerta-imagem-med"></div>`
+
+: `<div class="alerta-sem-foto">Sem foto cadastrada.<br>Confira o nome e a embalagem com atenção.</div>`;
+
 div.innerHTML=`
 💊 Hora do medicamento:<br>
 <strong>${escaparHTML(med.medicamento)}</strong><br>
 Quantidade: ${escaparHTML(med.quantidade)}
 ${linhaProximaDose}
-<br><br>
+${blocoFoto}
 <label for="codigoConfirmacaoDose">🔑 Digite o código de confirmação deste medicamento</label>
 <input type="text" id="codigoConfirmacaoDose" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="Código de segurança" aria-describedby="erroCodigoDose">
 <div id="erroCodigoDose" class="erro-codigo" role="alert" aria-live="assertive"></div>
@@ -1892,7 +2233,8 @@ atualizarProgressaoFormulario();
 }
 
 /* ===================================================== */
-/* CADASTRO SEQUENCIAL - VALIDAÇÃO E DESBLOQUEIO DE ETAPAS */
+/* CADASTRO SIMPLIFICADO (3 ETAPAS) - VALIDAÇÃO E         */
+/* DESBLOQUEIO PROGRESSIVO                                */
 /* (camada adicional; não altera a lógica de salvar/checklist) */
 /* ===================================================== */
 
@@ -1932,7 +2274,7 @@ dica.textContent="Medicamento selecionado da lista cadastrada.";
 
 }else if(novo && !medicamentoEstaNaLista(novo)){
 
-dica.textContent="Este medicamento ainda não está cadastrado. Será adicionado automaticamente ao confirmar, ou clique em \"Adicionar medicamento\".";
+dica.textContent="Este medicamento ainda não está cadastrado. Será adicionado automaticamente ao confirmar, ou clique em \"Adicionar à lista\".";
 
 }else if(novo && medicamentoEstaNaLista(novo)){
 
@@ -1948,41 +2290,27 @@ dica.textContent="";
 
 function atualizarProgressaoFormulario(){
 
-let grupoPaciente=document.getElementById("grupo-paciente");
-
-let grupoMedicamento=document.getElementById("grupo-medicamento");
-
-let grupoQuantidade=document.getElementById("grupo-quantidade");
+let grupoPrincipal=document.getElementById("grupo-principal");
 
 let grupoHorario=document.getElementById("grupo-horario");
 
-let grupoCodigo=document.getElementById("grupo-codigo");
-
-let grupoFoto=document.getElementById("grupo-foto");
+let grupoExtras=document.getElementById("grupo-extras");
 
 let btnSalvar=document.getElementById("btnSalvarMedicamento");
 
 let progresso=document.getElementById("progressoFormulario");
 
-if(!grupoPaciente) return;
+if(!grupoPrincipal) return;
 
 let campoPaciente=document.getElementById("paciente");
 
 let pacienteOk=campoPaciente.value.trim().length>0;
 
-grupoMedicamento.disabled=!pacienteOk;
-
-let etapaAtual=pacienteOk?2:1;
-
 let medSelect=document.getElementById("medicamento").value;
 
 let medNovo=document.getElementById("novoMedicamento").value.trim();
 
-let medicamentoOk=pacienteOk && (medSelect!=="" || medNovo.length>0);
-
-grupoQuantidade.disabled=!medicamentoOk;
-
-if(medicamentoOk) etapaAtual=3;
+let medicamentoOk=medSelect!=="" || medNovo.length>0;
 
 atualizarDicaMedicamento();
 
@@ -1990,27 +2318,21 @@ let campoQuantidade=document.getElementById("quantidade");
 
 let qtdNum=Number(campoQuantidade.value);
 
-let quantidadeOk=medicamentoOk && campoQuantidade.value!=="" && qtdNum>0;
+let quantidadeOk=campoQuantidade.value!=="" && qtdNum>0;
 
-grupoHorario.disabled=!quantidadeOk;
+let etapaPrincipalOk = pacienteOk && medicamentoOk && quantidadeOk;
 
-if(quantidadeOk) etapaAtual=4;
+let etapaAtual = etapaPrincipalOk ? 2 : 1;
+
+grupoHorario.disabled=!etapaPrincipalOk;
 
 let horarios=[...document.querySelectorAll(".horario")];
 
-let horarioOk=quantidadeOk && horarios.length>0 && horarios.every(h=>h.value!=="");
+let horarioOk=etapaPrincipalOk && horarios.length>0 && horarios.every(h=>h.value!=="");
 
-grupoCodigo.disabled=!horarioOk;
+grupoExtras.disabled=!horarioOk;
 
-if(horarioOk) etapaAtual=5;
-
-let codigoBarras=document.getElementById("codigoBarras");
-
-let etapaCodigoConcluida=horarioOk && (codigoBarras.value.trim().length>0 || grupoCodigo.dataset.concluida==="true");
-
-grupoFoto.disabled=!etapaCodigoConcluida;
-
-if(etapaCodigoConcluida) etapaAtual=6;
+if(horarioOk) etapaAtual=3;
 
 btnSalvar.disabled=!horarioOk;
 
@@ -2018,21 +2340,15 @@ if(progresso){
 
 let textos=[
 
-"Etapa 1 de 6 — Preencha o paciente para começar",
+"Etapa 1 de 3 — Preencha paciente, medicamento e quantidade",
 
-"Etapa 2 de 6 — Escolha ou digite o medicamento",
+"Etapa 2 de 3 — Defina os horários",
 
-"Etapa 3 de 6 — Informe a quantidade por dose",
-
-"Etapa 4 de 6 — Defina os horários",
-
-"Etapa 5 de 6 — Código de barras (opcional)",
-
-"Etapa 6 de 6 — Foto (opcional). Você já pode salvar."
+"Etapa 3 de 3 — Código de barras e foto (opcional). Você já pode salvar."
 
 ];
 
-progresso.textContent=textos[Math.min(etapaAtual,6)-1];
+progresso.textContent=textos[Math.min(etapaAtual,3)-1];
 
 }
 
@@ -2040,9 +2356,9 @@ progresso.textContent=textos[Math.min(etapaAtual,6)-1];
 
 function pularEtapaCodigoBarras(){
 
-let grupoCodigo=document.getElementById("grupo-codigo");
+let grupoExtras=document.getElementById("grupo-extras");
 
-if(grupoCodigo) grupoCodigo.dataset.concluida="true";
+if(grupoExtras) grupoExtras.dataset.concluida="true";
 
 atualizarProgressaoFormulario();
 
@@ -2050,9 +2366,9 @@ atualizarProgressaoFormulario();
 
 function reiniciarProgressaoFormulario(){
 
-let grupoCodigo=document.getElementById("grupo-codigo");
+let grupoExtras=document.getElementById("grupo-extras");
 
-if(grupoCodigo) grupoCodigo.dataset.concluida="false";
+if(grupoExtras) grupoExtras.dataset.concluida="false";
 
 atualizarProgressaoFormulario();
 
